@@ -1,5 +1,10 @@
 # AGENTS.md - URL Shortener Project
 
+## Git Workflow
+- `master` - Production branch (protected)
+- `develop` - Development branch (default)
+- Create feature branches from `develop`
+
 ## Quick Start
 ```bash
 # Install dependencies
@@ -9,13 +14,36 @@ npm install
 npm run docker:up
 
 # Generate Prisma client (required after schema changes)
-cd apps/api && npx prisma generate
+npx prisma generate --schema=apps/api/prisma/schema.prisma
 
 # Run migrations
-cd apps/api && npx prisma migrate dev
+npx prisma migrate dev --schema=apps/api/prisma/schema.prisma
 
-# Start development
+# Start development (all services)
 npm run dev
+```
+
+## Scripts
+
+### Development
+```bash
+npm run dev              # Start all services
+npm run dev:frontend    # Frontend only (4321)
+npm run dev:api          # API only (3000)
+```
+
+### Build & Test
+```bash
+npm run build           # Build all packages
+npm run test            # Run tests
+npm run lint            # Lint code
+```
+
+### Docker
+```bash
+npm run docker:up       # Start containers
+npm run docker:down    # Stop containers
+npm run docker:build    # Build production containers
 ```
 
 ## Project Structure
