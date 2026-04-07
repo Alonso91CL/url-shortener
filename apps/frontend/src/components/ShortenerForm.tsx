@@ -66,7 +66,6 @@ export default function ShortenerForm({ compact = false }: Props) {
         shortUrl: `${window.location.origin}/${data.code}`,
       });
 
-      // Dispatch event to refresh tables if on dashboard
       window.dispatchEvent(new CustomEvent('linkCreated', { detail: data }));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al crear el enlace');
@@ -102,7 +101,7 @@ export default function ShortenerForm({ compact = false }: Props) {
               className={clsx(
                 'input-base',
                 !compact && 'pr-32',
-                error && 'border-error focus:border-error focus:shadow-glow'
+                error && 'border-error'
               )}
               disabled={loading}
               aria-invalid={!!error}
@@ -114,7 +113,7 @@ export default function ShortenerForm({ compact = false }: Props) {
                   <button
                     type="button"
                     onClick={() => setUrl('')}
-                    className="p-1.5 text-surface-400 hover:text-surface-600 transition-colors"
+                    className="p-1.5 text-ink-500 hover:text-ink-300 transition-colors"
                     aria-label="Limpiar campo"
                   >
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -169,15 +168,15 @@ export default function ShortenerForm({ compact = false }: Props) {
       {result && (
         <div 
           className={clsx(
-            'bg-success-light border border-success/20 rounded-xl p-4',
+            'bg-success/10 border border-success/30 rounded-xl p-4',
             !compact && 'max-w-xl'
           )}
           role="status"
         >
           <div className="flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-success-dark/60 uppercase tracking-wide mb-1">Tu enlace corto</p>
-              <p className="font-mono text-sm truncate">{result.shortUrl}</p>
+              <p className="text-xs text-success mb-1 uppercase tracking-wide">Tu enlace corto</p>
+              <p className="font-mono text-sm text-accent-400 truncate">{result.shortUrl}</p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <CopyButton text={result.shortUrl} />
@@ -197,7 +196,7 @@ export default function ShortenerForm({ compact = false }: Props) {
       )}
 
       {!compact && (
-        <p className="text-xs text-surface-400 max-w-xl">
+        <p className="text-xs text-ink-600 max-w-xl">
           Al crear un enlace, aceptas que este sea público y rastreable. Los enlaces eliminados no se pueden recuperar.
         </p>
       )}

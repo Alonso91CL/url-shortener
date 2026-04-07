@@ -38,7 +38,6 @@ export default function StatsOverview() {
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
-      // Set default values on error
       setStats({
         totalClicks: 0,
         uniqueVisitors: 0,
@@ -59,7 +58,7 @@ export default function StatsOverview() {
     return (
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="card p-5">
+          <div key={i} className="card p-5 border border-white/5">
             <div className="skeleton h-3 w-16 mb-3"></div>
             <div className="skeleton h-7 w-20"></div>
           </div>
@@ -77,7 +76,7 @@ export default function StatsOverview() {
           <path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/>
         </svg>
       ),
-      color: 'brand',
+      color: 'accent',
     },
     {
       label: 'Visitantes únicos',
@@ -121,24 +120,24 @@ export default function StatsOverview() {
       {statCards.map((stat, index) => (
         <div 
           key={stat.label}
-          className="card p-5 group hover:shadow-lift transition-shadow duration-300"
+          className="card p-5 group hover:border-accent-500/30 transition-all duration-300 border border-white/5"
           style={{ animationDelay: `${index * 50}ms` }}
         >
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs text-surface-500 uppercase tracking-wide font-medium">
+            <p className="text-xs text-ink-500 uppercase tracking-wide font-medium">
               {stat.label}
             </p>
             <div className={clsx(
               'w-8 h-8 rounded-lg flex items-center justify-center',
-              stat.color === 'brand' && 'bg-brand-100 text-brand-600',
-              stat.color === 'info' && 'bg-info-light text-info',
-              stat.color === 'success' && 'bg-success-light text-success',
-              stat.color === 'warning' && 'bg-warning-light text-warning',
+              stat.color === 'accent' && 'bg-accent-500/10 border border-accent-500/20 text-accent-400',
+              stat.color === 'info' && 'bg-info/10 border border-info/20 text-info',
+              stat.color === 'success' && 'bg-success/10 border border-success/20 text-success',
+              stat.color === 'warning' && 'bg-warning/10 border border-warning/20 text-warning',
             )}>
               {stat.icon}
             </div>
           </div>
-          <p className="text-2xl font-semibold tabular-nums">
+          <p className="text-2xl font-semibold tabular-nums text-ink-100">
             {stat.value}
           </p>
         </div>

@@ -742,7 +742,9 @@ async function startServer() {
     process.on('SIGINT', () => shutdown('SIGINT'));
 
   } catch (error) {
-    console.error('Failed to start server:', error);
+    logger.error('Failed to start server', { 
+      error: error instanceof Error ? { message: error.message, name: error.name, stack: error.stack } : String(error)
+    });
     process.exit(1);
   }
 }

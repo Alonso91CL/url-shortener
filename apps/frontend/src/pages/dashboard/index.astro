@@ -5,12 +5,11 @@ import LinkTable from '../../components/LinkTable';
 ---
 
 <BaseLayout title="Dashboard">
-  <div class="max-w-6xl mx-auto px-6 py-8">
-    <!-- Header -->
+  <div id="dashboard-content" class="max-w-7xl mx-auto px-6 py-8 hidden">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
       <div>
-        <h1 class="font-serif text-2xl font-semibold">Dashboard</h1>
-        <p class="text-surface-500 text-sm mt-1">Gestiona tus enlaces y consulta estadísticas</p>
+        <h1 class="font-sans text-2xl font-semibold text-ink-100">Dashboard</h1>
+        <p class="text-ink-500 text-sm mt-1">Gestiona tus enlaces y consulta estadísticas</p>
       </div>
       <div class="flex items-center gap-3">
         <button id="logoutBtn" class="btn btn-ghost text-sm">
@@ -24,18 +23,16 @@ import LinkTable from '../../components/LinkTable';
       </div>
     </div>
 
-    <!-- Create link section -->
     <section class="mb-10">
       <div class="card p-6 lg:p-8">
-        <h2 class="font-semibold text-lg mb-4">Crear nuevo enlace</h2>
+        <h2 class="font-semibold text-lg mb-4 text-ink-100">Crear nuevo enlace</h2>
         <ShortenerForm client:load compact={true} />
       </div>
     </section>
 
-    <!-- Links table section -->
     <section>
       <div class="flex items-center justify-between mb-4">
-        <h2 class="font-semibold text-lg">Tus enlaces</h2>
+        <h2 class="font-semibold text-lg text-ink-100">Tus enlaces</h2>
         <div class="flex items-center gap-2">
           <button id="refreshBtn" class="btn btn-ghost text-sm">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -50,19 +47,57 @@ import LinkTable from '../../components/LinkTable';
       <LinkTable client:load />
     </section>
   </div>
+
+  <div id="loading-state" class="min-h-[60vh] flex items-center justify-center">
+    <div class="text-center">
+      <div class="w-12 h-12 border-4 border-accent-500/30 border-t-accent-500 rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-ink-500">Verificando sesión...</p>
+    </div>
+  </div>
 </BaseLayout>
 
 <script>
-  // Check if user is authenticated
-  const token = localStorage.getItem('token');
-  if (!token) {
-    window.location.href = '/login';
+  async function initDashboard() {
+    const loadingState = document.getElementById('loading-state');
+    const dashboardContent = document.getElementById('dashboard-content');
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:3000/api/v1/auth/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Token inválido');
+      }
+
+      if (loadingState) loadingState.classList.add('hidden');
+      if (dashboardContent) dashboardContent.classList.remove('hidden');
+
+      document.getElementById('logoutBtn')?.addEventListener('click', () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/';
+      });
+
+      document.getElementById('refreshBtn')?.addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('refreshLinks'));
+      });
+
+    } catch (error) {
+      console.error('Auth error:', error);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
   }
 
-  // Logout functionality
-  document.getElementById('logoutBtn')?.addEventListener('click', () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/';
-  });
+  initDashboard();
 </script>

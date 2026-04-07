@@ -22,49 +22,45 @@
 
   body {
     font-family: 'Outfit', system-ui, sans-serif;
-    background-color: oklch(99% 0.005 60);
-    color: oklch(25% 0.02 60);
+    background-color: oklch(15% 0.01 60);
+    color: oklch(85% 0.01 250);
     line-height: 1.6;
     min-height: 100vh;
   }
 
-  /* Custom selection color */
   ::selection {
-    background-color: oklch(85% 0.14 50);
-    color: oklch(25% 0.02 60);
+    background-color: oklch(65% 0.22 270);
+    color: oklch(100% 0 0);
   }
 
-  /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    background: oklch(97% 0.008 60);
+    background: oklch(15% 0.01 60);
   }
 
   ::-webkit-scrollbar-thumb {
-    background: oklch(78% 0.02 60);
+    background: oklch(40% 0.02 250);
     border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: oklch(68% 0.025 60);
+    background: oklch(50% 0.02 250);
   }
 
-  /* Focus visible styles */
   :focus {
     outline: none;
   }
 
   :focus-visible {
-    outline: 2px solid oklch(55% 0.22 50);
+    outline: 2px solid oklch(65% 0.22 270);
     outline-offset: 2px;
     border-radius: 4px;
   }
 
-  /* Reduced motion */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -78,7 +74,6 @@
 }
 
 @layer components {
-  /* Typography utilities */
   .text-balance {
     text-wrap: balance;
   }
@@ -87,7 +82,6 @@
     text-wrap: pretty;
   }
 
-  /* Container utilities */
   .container-tight {
     max-width: 42rem;
   }
@@ -100,22 +94,34 @@
     max-width: 72rem;
   }
 
-  /* Glass effect */
   .glass {
-    background: oklch(100% 0 0 / 0.8);
+    background: oklch(15% 0.01 60 / 0.8);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+    border: 1px solid oklch(100% 0 0 / 0.05);
   }
 
-  /* Gradient text utility */
+  .glass-light {
+    background: oklch(98% 0.005 60 / 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid oklch(0% 0 0 / 0.05);
+  }
+
   .text-gradient {
-    background: linear-gradient(135deg, oklch(55% 0.22 50), oklch(65% 0.2 50));
+    background: linear-gradient(135deg, oklch(72% 0.18 270), oklch(58% 0.20 270));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* Staggered animation helper */
+  .text-gradient-accent {
+    background: linear-gradient(135deg, oklch(72% 0.18 270), oklch(80% 0.12 270));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
   .stagger > * {
     animation: fade-up 0.5s var(--ease-out-expo) both;
   }
@@ -129,48 +135,53 @@
   .stagger > *:nth-child(7) { animation-delay: 300ms; }
   .stagger > *:nth-child(8) { animation-delay: 350ms; }
 
-  /* Card base */
   .card {
-    background: oklch(100% 0 0);
+    background: oklch(20% 0.015 60);
+    border: 1px solid oklch(100% 0 0 / 0.05);
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px oklch(0% 0 0 / 0.1), 0 4px 24px oklch(0% 0 0 / 0.15);
+  }
+
+  .card-light {
+    background: oklch(98% 0.005 60);
+    border: 1px solid oklch(0% 0 0 / 0.08);
     border-radius: 1rem;
     box-shadow: 0 2px 8px oklch(0% 0 0 / 0.04), 0 4px 24px oklch(0% 0 0 / 0.06);
   }
 
-  /* Input base */
   .input-base {
     display: block;
     width: 100%;
     padding: 0.75rem 1rem;
-    background: oklch(100% 0 0);
-    border: 1px solid oklch(88% 0.015 60);
+    background: oklch(20% 0.015 60);
+    border: 1px solid oklch(100% 0 0 / 0.1);
     border-radius: 0.625rem;
     font-size: 1rem;
     line-height: 1.5;
-    color: oklch(25% 0.02 60);
+    color: oklch(98% 0.005 250);
     transition: border-color 150ms var(--ease-out-expo), box-shadow 150ms var(--ease-out-expo);
   }
 
   .input-base::placeholder {
-    color: oklch(55% 0.025 60);
+    color: oklch(55% 0.025 250);
   }
 
   .input-base:hover {
-    border-color: oklch(78% 0.02 60);
+    border-color: oklch(100% 0 0 / 0.2);
   }
 
   .input-base:focus {
-    border-color: oklch(55% 0.22 50);
-    box-shadow: 0 0 0 3px oklch(65% 0.18 50 / 0.2);
+    border-color: oklch(65% 0.22 270);
+    box-shadow: 0 0 0 3px oklch(65% 0.18 270 / 0.2);
     outline: none;
   }
 
   .input-base:disabled {
-    background: oklch(97% 0.008 60);
-    color: oklch(55% 0.025 60);
+    background: oklch(15% 0.01 60);
+    color: oklch(55% 0.025 250);
     cursor: not-allowed;
   }
 
-  /* Button base */
   .btn {
     display: inline-flex;
     align-items: center;
@@ -191,14 +202,14 @@
   }
 
   .btn-primary {
-    background: oklch(55% 0.22 50);
+    background: oklch(65% 0.22 270);
     color: oklch(100% 0 0);
   }
 
   .btn-primary:hover:not(:disabled) {
-    background: oklch(48% 0.2 50);
+    background: oklch(72% 0.18 270);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px oklch(55% 0.22 50 / 0.3);
+    box-shadow: 0 4px 12px oklch(65% 0.22 270 / 0.35);
   }
 
   .btn-primary:active:not(:disabled) {
@@ -206,38 +217,37 @@
   }
 
   .btn-secondary {
-    background: oklch(97% 0.008 60);
-    color: oklch(25% 0.02 60);
-    border: 1px solid oklch(88% 0.015 60);
+    background: oklch(25% 0.015 60);
+    color: oklch(85% 0.01 250);
+    border: 1px solid oklch(100% 0 0 / 0.1);
   }
 
   .btn-secondary:hover:not(:disabled) {
-    background: oklch(93% 0.012 60);
-    border-color: oklch(78% 0.02 60);
+    background: oklch(35% 0.015 60);
+    border-color: oklch(100% 0 0 / 0.2);
   }
 
   .btn-ghost {
     background: transparent;
-    color: oklch(45% 0.03 60);
+    color: oklch(65% 0.02 250);
   }
 
   .btn-ghost:hover:not(:disabled) {
-    background: oklch(97% 0.008 60);
-    color: oklch(25% 0.02 60);
+    background: oklch(100% 0 0 / 0.05);
+    color: oklch(98% 0.005 250);
   }
 
   .btn-danger {
-    background: oklch(55% 0.2 25);
+    background: oklch(60% 0.22 25);
     color: oklch(100% 0 0);
   }
 
   .btn-danger:hover:not(:disabled) {
-    background: oklch(45% 0.18 25);
+    background: oklch(50% 0.20 25);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px oklch(55% 0.2 25 / 0.3);
+    box-shadow: 0 4px 12px oklch(60% 0.22 25 / 0.3);
   }
 
-  /* Badge */
   .badge {
     display: inline-flex;
     align-items: center;
@@ -250,32 +260,35 @@
   }
 
   .badge-success {
-    background: oklch(92% 0.08 145);
-    color: oklch(45% 0.12 145);
+    background: oklch(30% 0.12 145 / 0.3);
+    color: oklch(80% 0.15 145);
+    border: 1px solid oklch(70% 0.15 145 / 0.3);
   }
 
   .badge-error {
-    background: oklch(94% 0.08 25);
-    color: oklch(45% 0.18 25);
+    background: oklch(30% 0.15 25 / 0.3);
+    color: oklch(80% 0.18 25);
+    border: 1px solid oklch(70% 0.18 25 / 0.3);
   }
 
   .badge-warning {
-    background: oklch(94% 0.08 85);
-    color: oklch(55% 0.15 85);
+    background: oklch(30% 0.12 85 / 0.3);
+    color: oklch(85% 0.15 85);
+    border: 1px solid oklch(70% 0.15 85 / 0.3);
   }
 
   .badge-info {
-    background: oklch(94% 0.06 250);
-    color: oklch(45% 0.12 250);
+    background: oklch(30% 0.12 250 / 0.3);
+    color: oklch(80% 0.15 250);
+    border: 1px solid oklch(70% 0.15 250 / 0.3);
   }
 
-  /* Skeleton loading */
   .skeleton {
     background: linear-gradient(
       90deg,
-      oklch(93% 0.012 60) 0%,
-      oklch(97% 0.008 60) 50%,
-      oklch(93% 0.012 60) 100%
+      oklch(20% 0.015 60) 0%,
+      oklch(25% 0.015 60) 50%,
+      oklch(20% 0.015 60) 100%
     );
     background-size: 200% 100%;
     animation: skeleton-shimmer 1.5s infinite;
@@ -293,12 +306,10 @@
 }
 
 @layer utilities {
-  /* Custom animations */
   .animate-in {
     animation: fade-up 0.5s var(--ease-out-expo) both;
   }
 
-  /* Hide scrollbar but keep functionality */
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -308,19 +319,25 @@
     display: none;
   }
 
-  /* Tabular numbers for data */
   .tabular-nums {
     font-variant-numeric: tabular-nums;
   }
+
+  .glow-accent {
+    box-shadow: 0 0 20px oklch(65% 0.22 270 / 0.3);
+  }
+
+  .glow-accent-sm {
+    box-shadow: 0 0 10px oklch(65% 0.22 270 / 0.25);
+  }
 }
 
-/* Recharts custom styles */
 .recharts-cartesian-axis-tick-value {
   font-family: 'Outfit', system-ui, sans-serif;
-  fill: oklch(55% 0.025 60);
+  fill: oklch(65% 0.02 250);
   font-size: 0.75rem;
 }
 
 .recharts-tooltip-wrapper {
-  filter: drop-shadow(0 4px 12px oklch(0% 0 0 / 0.1));
+  filter: drop-shadow(0 4px 12px oklch(0% 0 0 / 0.3));
 }

@@ -4,30 +4,30 @@ import ShortenerForm from '../components/ShortenerForm';
 ---
 
 <BaseLayout title="Acorta URLs con analytics">
-  <section class="relative overflow-hidden">
-    <!-- Decorative background elements -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-      <div class="absolute -top-40 -right-40 w-96 h-96 bg-brand-100 rounded-full blur-3xl opacity-50"></div>
-      <div class="absolute top-1/2 -left-20 w-72 h-72 bg-brand-200 rounded-full blur-3xl opacity-30"></div>
-    </div>
+  <section class="relative min-h-screen overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-accent-900/20 via-surface-950 to-surface-950"></div>
+    <div class="absolute inset-0 bg-grid-pattern opacity-100"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-accent-500/10 rounded-full blur-[120px] -translate-y-1/2"></div>
+    <div class="absolute -top-20 -right-20 w-72 h-72 bg-accent-500/10 rounded-full blur-[100px]"></div>
+    <div class="absolute -bottom-40 -left-20 w-96 h-96 bg-accent-600/5 rounded-full blur-[120px]"></div>
 
-    <div class="relative max-w-6xl mx-auto px-6 pt-20 pb-32">
-      <div class="grid lg:grid-cols-2 gap-16 items-center">
-        <!-- Left: Hero content -->
+    <div class="relative z-10 max-w-7xl mx-auto px-6 pt-20 pb-32">
+      <div class="grid lg:grid-cols-2 gap-16 items-center min-h-[calc(100vh-8rem)]">
         <div class="space-y-8">
-          <div class="inline-flex items-center gap-2 px-4 py-2 bg-brand-50 rounded-full text-brand-700 text-sm font-medium animate-fade-in">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-            </svg>
+          <div class="inline-flex items-center gap-2 px-4 py-2 bg-accent-500/10 border border-accent-500/20 rounded-full text-accent-400 text-sm font-medium animate-fade-in">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75"></span>
+              <span class="relative inline-flex h-2 w-2 rounded-full bg-accent-500"></span>
+            </span>
             Analytics en tiempo real
           </div>
           
-          <h1 class="font-serif text-display font-semibold text-balance leading-[1.05]" style="animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 50ms;">
+          <h1 class="font-sans text-display font-bold text-ink-100 text-balance leading-[1.05]" style="animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 50ms;">
             URLs cortas,<br />
-            <span class="text-gradient">impacto enorme</span>
+            <span class="text-gradient-accent">impacto enorme</span>
           </h1>
           
-          <p class="text-lg text-surface-600 max-w-lg leading-relaxed" style="animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 100ms;">
+          <p class="text-lg text-ink-500 max-w-lg leading-relaxed" style="animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 100ms;">
             Acorta cualquier enlace y descubre quién hace clic, desde dónde acceden y qué dispositivos usan. Todo en un dashboard elegante.
           </p>
           
@@ -43,8 +43,7 @@ import ShortenerForm from '../components/ShortenerForm';
             </a>
           </div>
 
-          <!-- Trust indicators -->
-          <div class="flex items-center gap-8 pt-4 text-sm text-surface-500" style="animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 200ms;">
+          <div class="flex items-center gap-8 pt-4 text-sm text-ink-600" style="animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 200ms;">
             <div class="flex items-center gap-2">
               <svg class="w-4 h-4 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M20 6L9 17l-5-5"/>
@@ -58,113 +57,135 @@ import ShortenerForm from '../components/ShortenerForm';
               100 enlaces gratis
             </div>
           </div>
+
+          <div class="flex items-center gap-8 pt-4" style="animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 250ms;">
+            <div class="flex flex-col">
+              <span class="text-2xl font-bold text-ink-100">50K+</span>
+              <span class="text-sm text-ink-600">Enlaces creados</span>
+            </div>
+            <div class="h-8 w-px bg-white/10"></div>
+            <div class="flex flex-col">
+              <span class="text-2xl font-bold text-ink-100">98%</span>
+              <span class="text-sm text-ink-600">Satisfacción</span>
+            </div>
+            <div class="h-8 w-px bg-white/10"></div>
+            <div class="flex flex-col">
+              <span class="text-2xl font-bold text-ink-100">&lt;20ms</span>
+              <span class="text-sm text-ink-600">Tiempo de respuesta</span>
+            </div>
+          </div>
         </div>
 
-        <!-- Right: URL Shortener form -->
-        <div class="lg:pl-8" style="animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 250ms;">
-          <div class="card p-6 lg:p-8">
+        <div class="lg:pl-8" style="animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 300ms;">
+          <div class="card p-6 lg:p-8 glow-accent-sm">
             <ShortenerForm client:load />
           </div>
         </div>
       </div>
     </div>
+
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 hidden lg:block" style="opacity: 0">
+      <div class="flex flex-col items-center gap-2">
+        <span class="text-xs font-medium tracking-widest text-ink-700 uppercase">Scroll</span>
+        <svg class="h-5 w-5 text-ink-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+        </svg>
+      </div>
+    </div>
   </section>
 
-  <!-- Features section -->
-  <section id="features" class="py-24 bg-surface-100/50">
-    <div class="max-w-6xl mx-auto px-6">
+  <section id="features" class="relative py-24 scroll-mt-24">
+    <div class="absolute inset-0 bg-gradient-to-b from-surface-950 via-surface-900/50 to-surface-950"></div>
+    <div class="relative max-w-7xl mx-auto px-6">
       <div class="text-center max-w-2xl mx-auto mb-16">
-        <h2 class="font-serif text-display-sm font-semibold mb-4">
+        <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-accent-500/10 border border-accent-500/20 rounded-full text-sm font-medium text-accent-400 mb-6">
+          Características
+        </span>
+        <h2 class="font-sans text-display-sm font-bold text-ink-100 mb-4">
           Todo lo que necesitas para analizar tus enlaces
         </h2>
-        <p class="text-surface-600">
+        <p class="text-ink-500">
           Un set completo de herramientas para entender el comportamiento de tu audiencia.
         </p>
       </div>
 
-      <div class="grid md:grid-cols-3 gap-8">
-        <!-- Feature 1 -->
-        <div class="card p-8 group hover:shadow-lift transition-shadow duration-300">
-          <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="card p-8 group hover:border-accent-500/30 transition-all duration-300">
+          <div class="w-12 h-12 bg-accent-500/10 border border-accent-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-accent-500/20 transition-all">
+            <svg class="w-6 h-6 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M3 3v18h18"/>
               <path d="M18 17V9"/>
               <path d="M13 17V5"/>
               <path d="M8 17v-3"/>
             </svg>
           </div>
-          <h3 class="font-semibold text-lg mb-2">Métricas en tiempo real</h3>
-          <p class="text-surface-600 text-sm leading-relaxed">
+          <h3 class="font-semibold text-lg text-ink-100 mb-2">Métricas en tiempo real</h3>
+          <p class="text-ink-500 text-sm leading-relaxed">
             Visualiza los clics al instante. Cada visita se registra y muestra en gráficos actualizados al segundo.
           </p>
         </div>
 
-        <!-- Feature 2 -->
-        <div class="card p-8 group hover:shadow-lift transition-shadow duration-300">
-          <div class="w-12 h-12 bg-info-light rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+        <div class="card p-8 group hover:border-accent-500/30 transition-all duration-300">
+          <div class="w-12 h-12 bg-info/10 border border-info/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-info/20 transition-all">
             <svg class="w-6 h-6 text-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"/>
               <path d="M2 12h20"/>
               <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
             </svg>
           </div>
-          <h3 class="font-semibold text-lg mb-2">Geolocalización</h3>
-          <p class="text-surface-600 text-sm leading-relaxed">
+          <h3 class="font-semibold text-lg text-ink-100 mb-2">Geolocalización</h3>
+          <p class="text-ink-500 text-sm leading-relaxed">
             Descubre de qué países y ciudades provienen tus visitantes con mapas interactivos y estadísticas detalladas.
           </p>
         </div>
 
-        <!-- Feature 3 -->
-        <div class="card p-8 group hover:shadow-lift transition-shadow duration-300">
-          <div class="w-12 h-12 bg-success-light rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+        <div class="card p-8 group hover:border-accent-500/30 transition-all duration-300">
+          <div class="w-12 h-12 bg-success/10 border border-success/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-success/20 transition-all">
             <svg class="w-6 h-6 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
               <path d="M12 18h.01"/>
             </svg>
           </div>
-          <h3 class="font-semibold text-lg mb-2">Dispositivos y navegadores</h3>
-          <p class="text-surface-600 text-sm leading-relaxed">
+          <h3 class="font-semibold text-lg text-ink-100 mb-2">Dispositivos y navegadores</h3>
+          <p class="text-ink-500 text-sm leading-relaxed">
             Saber si tu audiencia usa móvil o escritorio, y qué navegadores prefieren, te ayuda a optimizar.
           </p>
         </div>
 
-        <!-- Feature 4 -->
-        <div class="card p-8 group hover:shadow-lift transition-shadow duration-300">
-          <div class="w-12 h-12 bg-warning-light rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+        <div class="card p-8 group hover:border-accent-500/30 transition-all duration-300">
+          <div class="w-12 h-12 bg-warning/10 border border-warning/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-warning/20 transition-all">
             <svg class="w-6 h-6 text-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
               <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
             </svg>
           </div>
-          <h3 class="font-semibold text-lg mb-2">Referrers</h3>
-          <p class="text-surface-600 text-sm leading-relaxed">
+          <h3 class="font-semibold text-lg text-ink-100 mb-2">Referrers</h3>
+          <p class="text-ink-500 text-sm leading-relaxed">
             Identifica de dónde vienen tus visitantes: redes sociales, motores de búsqueda o sitios web específicos.
           </p>
         </div>
 
-        <!-- Feature 5 -->
-        <div class="card p-8 group hover:shadow-lift transition-shadow duration-300">
-          <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-            <svg class="w-6 h-6 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div class="card p-8 group hover:border-accent-500/30 transition-all duration-300">
+          <div class="w-12 h-12 bg-accent-500/10 border border-accent-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-accent-500/20 transition-all">
+            <svg class="w-6 h-6 text-accent-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
             </svg>
           </div>
-          <h3 class="font-semibold text-lg mb-2">Enlaces seguros</h3>
-          <p class="text-surface-600 text-sm leading-relaxed">
+          <h3 class="font-semibold text-lg text-ink-100 mb-2">Enlaces seguros</h3>
+          <p class="text-ink-500 text-sm leading-relaxed">
             SSL automático en todos los enlaces. Tus usuarios siempre acceden de forma segura.
           </p>
         </div>
 
-        <!-- Feature 6 -->
-        <div class="card p-8 group hover:shadow-lift transition-shadow duration-300">
-          <div class="w-12 h-12 bg-info-light rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+        <div class="card p-8 group hover:border-accent-500/30 transition-all duration-300">
+          <div class="w-12 h-12 bg-info/10 border border-info/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-info/20 transition-all">
             <svg class="w-6 h-6 text-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
               <polyline points="22,6 12,13 2,6"/>
             </svg>
           </div>
-          <h3 class="font-semibold text-lg mb-2">Notificaciones</h3>
-          <p class="text-surface-600 text-sm leading-relaxed">
+          <h3 class="font-semibold text-lg text-ink-100 mb-2">Notificaciones</h3>
+          <p class="text-ink-500 text-sm leading-relaxed">
             Recibe alertas cuando un enlace alcanza un milestone o tiene actividad inusual.
           </p>
         </div>
@@ -172,76 +193,75 @@ import ShortenerForm from '../components/ShortenerForm';
     </div>
   </section>
 
-  <!-- Demo section -->
-  <section id="demo" class="py-24">
-    <div class="max-w-6xl mx-auto px-6">
+  <section id="demo" class="relative py-24">
+    <div class="absolute inset-0 bg-gradient-to-b from-surface-950 via-accent-900/5 to-surface-950"></div>
+    <div class="relative max-w-7xl mx-auto px-6">
       <div class="text-center max-w-2xl mx-auto mb-12">
-        <h2 class="font-serif text-display-sm font-semibold mb-4">
-          Dashboard de analytics
+        <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-accent-500/10 border border-accent-500/20 rounded-full text-sm font-medium text-accent-400 mb-6">
+          Dashboard
+        </span>
+        <h2 class="font-sans text-display-sm font-bold text-ink-100 mb-4">
+          Analytics en tiempo real
         </h2>
-        <p class="text-surface-600">
+        <p class="text-ink-500">
           Una interfaz limpia y poderosa para explorar todos los datos de tus enlaces.
         </p>
       </div>
 
-      <!-- Demo preview -->
-      <div class="card p-4 lg:p-6 shadow-soft">
-        <div class="bg-surface-100 rounded-xl p-6 space-y-6">
-          <!-- Mini stats -->
+      <div class="card p-4 lg:p-6">
+        <div class="bg-surface-900/50 rounded-xl p-6 space-y-6 border border-white/5">
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="bg-white rounded-lg p-4">
-              <p class="text-2xs text-surface-500 uppercase tracking-wide mb-1">Clics totales</p>
-              <p class="text-2xl font-semibold tabular-nums">12,847</p>
+            <div class="bg-surface-800/50 rounded-lg p-4 border border-white/5">
+              <p class="text-2xs text-ink-600 uppercase tracking-wide mb-1">Clics totales</p>
+              <p class="text-2xl font-semibold tabular-nums text-ink-100">12,847</p>
             </div>
-            <div class="bg-white rounded-lg p-4">
-              <p class="text-2xs text-surface-500 uppercase tracking-wide mb-1">Enlaces</p>
-              <p class="text-2xl font-semibold tabular-nums">156</p>
+            <div class="bg-surface-800/50 rounded-lg p-4 border border-white/5">
+              <p class="text-2xs text-ink-600 uppercase tracking-wide mb-1">Enlaces</p>
+              <p class="text-2xl font-semibold tabular-nums text-ink-100">156</p>
             </div>
-            <div class="bg-white rounded-lg p-4">
-              <p class="text-2xs text-surface-500 uppercase tracking-wide mb-1">Países</p>
-              <p class="text-2xl font-semibold tabular-nums">24</p>
+            <div class="bg-surface-800/50 rounded-lg p-4 border border-white/5">
+              <p class="text-2xs text-ink-600 uppercase tracking-wide mb-1">Países</p>
+              <p class="text-2xl font-semibold tabular-nums text-ink-100">24</p>
             </div>
-            <div class="bg-white rounded-lg p-4">
-              <p class="text-2xs text-surface-500 uppercase tracking-wide mb-1">CTR promedio</p>
-              <p class="text-2xl font-semibold tabular-nums">8.2%</p>
+            <div class="bg-surface-800/50 rounded-lg p-4 border border-white/5">
+              <p class="text-2xs text-ink-600 uppercase tracking-wide mb-1">CTR promedio</p>
+              <p class="text-2xl font-semibold tabular-nums text-ink-100">8.2%</p>
             </div>
           </div>
 
-          <!-- Mock chart -->
-          <div class="bg-white rounded-lg p-4 h-48 flex items-end gap-2">
+          <div class="bg-surface-800/50 rounded-lg p-4 h-48 flex items-end gap-2 border border-white/5">
             {[45, 52, 38, 65, 72, 58, 80, 75, 88, 92, 78, 95].map((h, i) => (
               <div 
-                class="flex-1 bg-brand-200 rounded-t transition-all hover:bg-brand-400 cursor-pointer"
+                class="flex-1 bg-gradient-to-t from-accent-600 to-accent-400 rounded-t transition-all hover:from-accent-500 hover:to-accent-300 cursor-pointer"
                 style={`height: ${h}%`}
               ></div>
             ))}
           </div>
-          <p class="text-center text-sm text-surface-500">Clics últimos 30 días</p>
+          <p class="text-center text-sm text-ink-600">Clics últimos 30 días</p>
 
-          <!-- Mini table -->
-          <div class="bg-white rounded-lg overflow-hidden">
+          <div class="bg-surface-800/50 rounded-lg overflow-hidden border border-white/5">
             <table class="w-full text-sm">
               <thead>
-                <tr class="border-b border-surface-200">
-                  <th class="text-left p-3 font-medium text-surface-500">Enlace</th>
-                  <th class="text-right p-3 font-medium text-surface-500">Clics</th>
-                  <th class="text-right p-3 font-medium text-surface-500">Dispositivo</th>
+                <tr class="border-b border-white/5">
+                  <th class="text-left p-3 font-medium text-ink-500">Enlace</th>
+                  <th class="text-right p-3 font-medium text-ink-500">Clics</th>
+                  <th class="text-right p-3 font-medium text-ink-500">Dispositivo</th>
                 </tr>
               </thead>
               <tbody>
-                <tr class="border-b border-surface-100">
-                  <td class="p-3 font-mono text-xs">linkly.clk/abc123</td>
-                  <td class="p-3 text-right tabular-nums font-medium">2,847</td>
+                <tr class="border-b border-white/5">
+                  <td class="p-3 font-mono text-xs text-accent-400">linkly.clk/abc123</td>
+                  <td class="p-3 text-right tabular-nums font-medium text-ink-100">2,847</td>
                   <td class="p-3 text-right"><span class="badge badge-info">Móvil 68%</span></td>
                 </tr>
-                <tr class="border-b border-surface-100">
-                  <td class="p-3 font-mono text-xs">linkly.clk/def456</td>
-                  <td class="p-3 text-right tabular-nums font-medium">1,523</td>
+                <tr class="border-b border-white/5">
+                  <td class="p-3 font-mono text-xs text-accent-400">linkly.clk/def456</td>
+                  <td class="p-3 text-right tabular-nums font-medium text-ink-100">1,523</td>
                   <td class="p-3 text-right"><span class="badge badge-success">Desktop 82%</span></td>
                 </tr>
                 <tr>
-                  <td class="p-3 font-mono text-xs">linkly.clk/ghi789</td>
-                  <td class="p-3 text-right tabular-nums font-medium">987</td>
+                  <td class="p-3 font-mono text-xs text-accent-400">linkly.clk/ghi789</td>
+                  <td class="p-3 text-right tabular-nums font-medium text-ink-100">987</td>
                   <td class="p-3 text-right"><span class="badge badge-info">Móvil 54%</span></td>
                 </tr>
               </tbody>
@@ -252,20 +272,23 @@ import ShortenerForm from '../components/ShortenerForm';
     </div>
   </section>
 
-  <!-- CTA section -->
-  <section class="py-24 bg-surface-900 text-white">
-    <div class="max-w-4xl mx-auto px-6 text-center">
-      <h2 class="font-serif text-display-sm font-semibold mb-6">
+  <section class="relative py-24">
+    <div class="absolute inset-0 bg-gradient-to-t from-accent-900/10 via-surface-950 to-surface-950"></div>
+    <div class="relative max-w-4xl mx-auto px-6 text-center">
+      <h2 class="font-sans text-display-sm font-bold text-ink-100 mb-6">
         Empieza a acortar enlaces hoy
       </h2>
-      <p class="text-surface-300 text-lg mb-8 max-w-xl mx-auto">
+      <p class="text-ink-500 text-lg mb-8 max-w-xl mx-auto">
         Crea tu cuenta gratuita y empieza a entender cómo tu audiencia interactúa con tus enlaces.
       </p>
       <div class="flex flex-wrap justify-center gap-4">
-        <a href="/register" class="btn bg-white text-surface-900 hover:bg-surface-100 text-base px-8 py-3.5">
+        <a href="/register" class="btn btn-primary text-base px-8 py-3.5">
           Crear cuenta gratis
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
         </a>
-        <a href="/login" class="btn bg-transparent text-white border border-surface-600 hover:bg-surface-800 text-base px-8 py-3.5">
+        <a href="/login" class="btn btn-secondary text-base px-8 py-3.5">
           Ya tengo cuenta
         </a>
       </div>

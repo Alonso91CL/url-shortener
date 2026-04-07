@@ -19,14 +19,14 @@ interface Props {
 }
 
 const COLORS = {
-  brand: 'oklch(55% 0.22 50)',
-  brandLight: 'oklch(85% 0.14 50)',
-  info: 'oklch(60% 0.15 250)',
-  success: 'oklch(60% 0.15 145)',
-  warning: 'oklch(75% 0.18 85)',
+  accent: 'oklch(65% 0.22 270)',
+  accentLight: 'oklch(80% 0.15 270)',
+  info: 'oklch(65% 0.18 250)',
+  success: 'oklch(70% 0.18 145)',
+  warning: 'oklch(80% 0.18 85)',
 };
 
-const DEVICE_COLORS = ['oklch(55% 0.22 50)', 'oklch(60% 0.15 145)', 'oklch(75% 0.18 85)', 'oklch(60% 0.15 250)'];
+const PIE_COLORS = ['oklch(65% 0.22 270)', 'oklch(65% 0.18 250)', 'oklch(70% 0.18 145)', 'oklch(80% 0.18 85)'];
 
 export default function AnalyticsChart({ type }: Props) {
   const [data, setData] = useState<any[]>([]);
@@ -67,7 +67,6 @@ export default function AnalyticsChart({ type }: Props) {
 
       const result = await response.json();
       
-      // Transform data based on type
       switch (type) {
         case 'timeseries':
           setData(result.map((item: any) => ({
@@ -116,7 +115,7 @@ export default function AnalyticsChart({ type }: Props) {
 
   if (!data || data.length === 0) {
     return (
-      <div className="h-full flex items-center justify-center text-surface-400">
+      <div className="h-full flex items-center justify-center text-ink-600">
         <div className="text-center">
           <svg className="w-12 h-12 mx-auto mb-2 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M3 3v18h18"/>
@@ -133,9 +132,9 @@ export default function AnalyticsChart({ type }: Props) {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 rounded-lg shadow-lift border border-surface-200">
-          <p className="text-sm font-medium text-surface-900 mb-1">{label}</p>
-          <p className="text-sm text-brand-600 font-semibold">
+        <div className="bg-surface-800 p-3 rounded-lg shadow-lg border border-white/10">
+          <p className="text-sm font-medium text-ink-100 mb-1">{label}</p>
+          <p className="text-sm text-accent-400 font-semibold">
             {payload[0].value.toLocaleString()} clics
           </p>
         </div>
@@ -147,9 +146,9 @@ export default function AnalyticsChart({ type }: Props) {
   const PieTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 rounded-lg shadow-lift border border-surface-200">
-          <p className="text-sm font-medium text-surface-900 mb-1">{payload[0].name}</p>
-          <p className="text-sm font-semibold">
+        <div className="bg-surface-800 p-3 rounded-lg shadow-lg border border-white/10">
+          <p className="text-sm font-medium text-ink-100 mb-1">{payload[0].name}</p>
+          <p className="text-sm font-semibold text-ink-300">
             {payload[0].value.toLocaleString()} ({((payload[0].value / data.reduce((a: number, b: any) => a + b.value, 0)) * 100).toFixed(1)}%)
           </p>
         </div>
@@ -165,20 +164,20 @@ export default function AnalyticsChart({ type }: Props) {
           <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="oklch(55% 0.22 50)" stopOpacity={0.2}/>
-                <stop offset="95%" stopColor="oklch(55% 0.22 50)" stopOpacity={0}/>
+                <stop offset="5%" stopColor="oklch(65% 0.22 270)" stopOpacity={0.3}/>
+                <stop offset="95%" stopColor="oklch(65% 0.22 270)" stopOpacity={0}/>
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="oklch(93% 0.012 60)" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="oklch(100% 0 0 / 0.05)" vertical={false} />
             <XAxis 
               dataKey="date" 
-              tick={{ fontSize: 12, fill: 'oklch(55% 0.025 60)' }}
+              tick={{ fontSize: 12, fill: 'oklch(65% 0.02 250)' }}
               tickLine={false}
-              axisLine={{ stroke: 'oklch(88% 0.015 60)' }}
+              axisLine={{ stroke: 'oklch(100% 0 0 / 0.1)' }}
               dy={10}
             />
             <YAxis 
-              tick={{ fontSize: 12, fill: 'oklch(55% 0.025 60)' }}
+              tick={{ fontSize: 12, fill: 'oklch(65% 0.02 250)' }}
               tickLine={false}
               axisLine={false}
               tickFormatter={(value) => value >= 1000 ? `${(value/1000).toFixed(0)}k` : value}
@@ -187,12 +186,12 @@ export default function AnalyticsChart({ type }: Props) {
             <Area 
               type="monotone" 
               dataKey="clicks" 
-              stroke="oklch(55% 0.22 50)" 
+              stroke="oklch(65% 0.22 270)" 
               strokeWidth={2}
               fillOpacity={1}
               fill="url(#colorClicks)"
               dot={false}
-              activeDot={{ r: 6, fill: 'oklch(55% 0.22 50)', strokeWidth: 0 }}
+              activeDot={{ r: 6, fill: 'oklch(65% 0.22 270)', strokeWidth: 0 }}
             />
           </AreaChart>
         </ResponsiveContainer>
@@ -217,7 +216,7 @@ export default function AnalyticsChart({ type }: Props) {
                   {data.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`} 
-                      fill={DEVICE_COLORS[index % DEVICE_COLORS.length]} 
+                      fill={PIE_COLORS[index % PIE_COLORS.length]} 
                     />
                   ))}
                 </Pie>
@@ -234,11 +233,11 @@ export default function AnalyticsChart({ type }: Props) {
                 <div key={item.name} className="flex items-center gap-2">
                   <div 
                     className="w-3 h-3 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: DEVICE_COLORS[index % DEVICE_COLORS.length] }}
+                    style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }}
                   />
                   <div className="min-w-0">
-                    <p className="text-sm font-medium truncate">{item.name}</p>
-                    <p className="text-xs text-surface-500">{percentage}%</p>
+                    <p className="text-sm font-medium text-ink-300 truncate">{item.name}</p>
+                    <p className="text-xs text-ink-600">{percentage}%</p>
                   </div>
                 </div>
               );
