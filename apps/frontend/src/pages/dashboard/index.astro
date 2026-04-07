@@ -1,0 +1,68 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ShortenerForm from '../../components/ShortenerForm';
+import LinkTable from '../../components/LinkTable';
+---
+
+<BaseLayout title="Dashboard">
+  <div class="max-w-6xl mx-auto px-6 py-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div>
+        <h1 class="font-serif text-2xl font-semibold">Dashboard</h1>
+        <p class="text-surface-500 text-sm mt-1">Gestiona tus enlaces y consulta estadísticas</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="logoutBtn" class="btn btn-ghost text-sm">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          Cerrar sesión
+        </button>
+      </div>
+    </div>
+
+    <!-- Create link section -->
+    <section class="mb-10">
+      <div class="card p-6 lg:p-8">
+        <h2 class="font-semibold text-lg mb-4">Crear nuevo enlace</h2>
+        <ShortenerForm client:load compact={true} />
+      </div>
+    </section>
+
+    <!-- Links table section -->
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-semibold text-lg">Tus enlaces</h2>
+        <div class="flex items-center gap-2">
+          <button id="refreshBtn" class="btn btn-ghost text-sm">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 4 23 10 17 10"/>
+              <polyline points="1 20 1 14 7 14"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+            Actualizar
+          </button>
+        </div>
+      </div>
+      <LinkTable client:load />
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  // Check if user is authenticated
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = '/login';
+  }
+
+  // Logout functionality
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/';
+  });
+</script>

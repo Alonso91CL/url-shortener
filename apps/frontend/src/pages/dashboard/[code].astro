@@ -1,0 +1,355 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AnalyticsChart from '../../components/AnalyticsChart';
+import StatsOverview from '../../components/StatsOverview';
+
+export const prerender = false;
+---
+
+<BaseLayout title="Analytics de enlace">
+  <div class="max-w-6xl mx-auto px-6 py-8">
+    <!-- Back button and header -->
+    <div class="mb-8">
+      <a href="/dashboard" class="inline-flex items-center gap-2 text-sm text-surface-500 hover:text-surface-900 transition-colors mb-4">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Volver al dashboard
+      </a>
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <h1 class="font-serif text-2xl font-semibold" id="linkCode">Cargando...</h1>
+            <span id="linkStatus" class="badge badge-success">
+              <span class="w-1.5 h-1.5 bg-current rounded-full"></span>
+              Activo
+            </span>
+          </div>
+          <p class="text-surface-500 text-sm font-mono" id="originalUrl">Cargando URL original...</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="copyBtn" class="btn btn-secondary text-sm">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            Copiar enlace
+          </button>
+          <button id="deleteBtn" class="btn btn-danger text-sm">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats overview -->
+    <section class="mb-8">
+      <StatsOverview client:load />
+    </section>
+
+    <!-- Time period selector -->
+    <div class="flex items-center gap-2 mb-6">
+      <span class="text-sm text-surface-500">Periodo:</span>
+      <div class="flex items-center bg-surface-100 rounded-lg p-1" id="periodSelector">
+        <button class="period-btn px-4 py-1.5 text-sm rounded-md transition-colors" data-days="7">7 días</button>
+        <button class="period-btn px-4 py-1.5 text-sm rounded-md transition-colors active" data-days="30">30 días</button>
+        <button class="period-btn px-4 py-1.5 text-sm rounded-md transition-colors" data-days="90">90 días</button>
+      </div>
+    </div>
+
+    <!-- Main chart -->
+    <section class="card p-6 mb-8">
+      <h2 class="font-semibold mb-4">Clics en el tiempo</h2>
+      <div class="h-72">
+        <AnalyticsChart client:load type="timeseries" />
+      </div>
+    </section>
+
+    <!-- Secondary charts grid -->
+    <div class="grid lg:grid-cols-2 gap-6 mb-8">
+      <!-- Devices chart -->
+      <section class="card p-6">
+        <h2 class="font-semibold mb-4">Dispositivos</h2>
+        <div class="h-64">
+          <AnalyticsChart client:load type="devices" />
+        </div>
+      </section>
+
+      <!-- Browsers chart -->
+      <section class="card p-6">
+        <h2 class="font-semibold mb-4">Navegadores</h2>
+        <div class="h-64">
+          <AnalyticsChart client:load type="browsers" />
+        </div>
+      </section>
+    </div>
+
+    <!-- Countries and Referrers -->
+    <div class="grid lg:grid-cols-2 gap-6">
+      <!-- Countries -->
+      <section class="card p-6">
+        <h2 class="font-semibold mb-4">Países</h2>
+        <div id="countriesList" class="space-y-3">
+          <div class="skeleton h-10 w-full"></div>
+          <div class="skeleton h-10 w-full"></div>
+          <div class="skeleton h-10 w-full"></div>
+          <div class="skeleton h-10 w-full"></div>
+          <div class="skeleton h-10 w-full"></div>
+        </div>
+      </section>
+
+      <!-- Referrers -->
+      <section class="card p-6">
+        <h2 class="font-semibold mb-4">Fuentes de tráfico</h2>
+        <div id="referrersList" class="space-y-3">
+          <div class="skeleton h-10 w-full"></div>
+          <div class="skeleton h-10 w-full"></div>
+          <div class="skeleton h-10 w-full"></div>
+          <div class="skeleton h-10 w-full"></div>
+          <div class="skeleton h-10 w-full"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Delete confirmation modal -->
+  <dialog id="deleteModal" class="p-0 rounded-2xl shadow-lift backdrop:bg-black/30 backdrop:backdrop-blur-sm max-w-md w-[90vw]">
+    <div class="p-6">
+      <div class="flex items-center justify-center w-12 h-12 bg-error-light rounded-full mb-4 mx-auto">
+        <svg class="w-6 h-6 text-error" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <h3 class="font-serif text-xl font-semibold text-center mb-2">Eliminar enlace</h3>
+      <p class="text-surface-500 text-sm text-center mb-6">
+        ¿Estás seguro de que quieres eliminar este enlace? Esta acción no se puede deshacer y se perderán todas las estadísticas.
+      </p>
+      <div class="flex gap-3">
+        <button id="cancelDelete" class="btn btn-secondary flex-1">Cancelar</button>
+        <button id="confirmDelete" class="btn btn-danger flex-1">Eliminar</button>
+      </div>
+    </div>
+  </dialog>
+</BaseLayout>
+
+<script define:vars={{ code: Astro.params.code }}>
+  const API_BASE = 'http://localhost:3000/api/v1';
+  
+  // Check authentication
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = '/login';
+  }
+
+  let currentDays = 30;
+  let linkData = null;
+
+  // Fetch link data
+  async function fetchLinkData() {
+    try {
+      const response = await fetch(`${API_BASE}/links/${code}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          window.location.href = '/dashboard';
+          return;
+        }
+        throw new Error('Error al cargar el enlace');
+      }
+
+      linkData = await response.json();
+      updateLinkInfo();
+    } catch (error) {
+      console.error('Error fetching link:', error);
+    }
+  }
+
+  function updateLinkInfo() {
+    if (!linkData) return;
+    
+    document.getElementById('linkCode').textContent = `${window.location.origin}/${linkData.code}`;
+    document.getElementById('originalUrl').textContent = linkData.originalUrl;
+    
+    // Update status badge
+    const statusBadge = document.getElementById('linkStatus');
+    if (linkData.active) {
+      statusBadge.className = 'badge badge-success';
+      statusBadge.innerHTML = '<span class="w-1.5 h-1.5 bg-current rounded-full"></span> Activo';
+    } else {
+      statusBadge.className = 'badge badge-warning';
+      statusBadge.innerHTML = '<span class="w-1.5 h-1.5 bg-current rounded-full"></span> Inactivo';
+    }
+  }
+
+  // Fetch countries data
+  async function fetchCountries() {
+    try {
+      const response = await fetch(`${API_BASE}/stats/${code}/countries`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error('Error al cargar países');
+
+      const data = await response.json();
+      renderCountries(data);
+    } catch (error) {
+      console.error('Error fetching countries:', error);
+    }
+  }
+
+  function renderCountries(countries) {
+    const container = document.getElementById('countriesList');
+    if (!countries || countries.length === 0) {
+      container.innerHTML = '<p class="text-surface-500 text-sm text-center py-8">No hay datos de geolocalización</p>';
+      return;
+    }
+
+    container.innerHTML = countries.slice(0, 5).map((item, index) => `
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="w-6 text-center text-sm text-surface-400">${index + 1}</span>
+          <span class="font-medium">${item.country || 'Desconocido'}</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-24 h-2 bg-surface-100 rounded-full overflow-hidden">
+            <div class="h-full bg-brand-400 rounded-full" style="width: ${item.percentage}%"></div>
+          </div>
+          <span class="text-sm text-surface-500 tabular-nums w-12 text-right">${item.count}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Fetch referrers data
+  async function fetchReferrers() {
+    try {
+      const response = await fetch(`${API_BASE}/stats/${code}/referrers`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error('Error al cargar referrers');
+
+      const data = await response.json();
+      renderReferrers(data);
+    } catch (error) {
+      console.error('Error fetching referrers:', error);
+    }
+  }
+
+  function renderReferrers(referrers) {
+    const container = document.getElementById('referrersList');
+    if (!referrers || referrers.length === 0) {
+      container.innerHTML = '<p class="text-surface-500 text-sm text-center py-8">No hay datos de referrers</p>';
+      return;
+    }
+
+    container.innerHTML = referrers.slice(0, 5).map((item, index) => `
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="w-6 text-center text-sm text-surface-400">${index + 1}</span>
+          <span class="font-medium truncate max-w-[150px]">${item.referrer || 'Directo'}</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-24 h-2 bg-surface-100 rounded-full overflow-hidden">
+            <div class="h-full bg-info rounded-full" style="width: ${item.percentage}%"></div>
+          </div>
+          <span class="text-sm text-surface-500 tabular-nums w-12 text-right">${item.count}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Period selector
+  document.querySelectorAll('.period-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active', 'bg-white', 'shadow-sm'));
+      btn.classList.add('active', 'bg-white', 'shadow-sm');
+      currentDays = parseInt(btn.dataset.days);
+      
+      // Trigger chart refresh via custom event
+      window.dispatchEvent(new CustomEvent('periodChange', { detail: { days: currentDays } }));
+    });
+  });
+
+  // Initialize period buttons style
+  document.querySelector('.period-btn.active').classList.add('bg-white', 'shadow-sm');
+
+  // Copy button
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    if (!linkData) return;
+    const shortUrl = `${window.location.origin}/${linkData.code}`;
+    
+    try {
+      await navigator.clipboard.writeText(shortUrl);
+      const btn = document.getElementById('copyBtn');
+      btn.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> ¡Copiado!';
+      setTimeout(() => {
+        btn.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar enlace';
+      }, 2000);
+    } catch (error) {
+      console.error('Error copying:', error);
+    }
+  });
+
+  // Delete modal
+  const modal = document.getElementById('deleteModal');
+  document.getElementById('deleteBtn').addEventListener('click', () => {
+    modal.showModal();
+  });
+  document.getElementById('cancelDelete').addEventListener('click', () => {
+    modal.close();
+  });
+  document.getElementById('confirmDelete').addEventListener('click', async () => {
+    try {
+      const response = await fetch(`${API_BASE}/links/${code}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error('Error al eliminar');
+
+      window.location.href = '/dashboard';
+    } catch (error) {
+      console.error('Error deleting:', error);
+      modal.close();
+    }
+  });
+
+  // Close modal on backdrop click
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.close();
+    }
+  });
+
+  // Initialize
+  fetchLinkData();
+  fetchCountries();
+  fetchReferrers();
+</script>
+
+<style>
+  .period-btn:not(.active) {
+    color: oklch(55% 0.025 60);
+  }
+  .period-btn.active {
+    color: oklch(25% 0.02 60);
+  }
+</style>

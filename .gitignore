@@ -1,0 +1,63 @@
+# =============================================================================
+# Git Ignore for URL Shortener Project
+# =============================================================================
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+.pnpm-store/
+
+# Build outputs
+dist/
+.build/
+.next/
+
+# Environment files (NEVER commit these!)
+.env
+.env.local
+.env.*.local
+*.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Testing
+coverage/
+
+# Prisma
+apps/api/prisma/migrations/**/migration_lock.toml
+
+# Docker volumes (data)
+data/*.mmdb
+data/*.mdb
+postgres_data/
+redis_data/
+
+# Temporary files
+tmp/
+temp/
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Production
+.vercel
+.netlify
+
+# Turbo
+.turbo/

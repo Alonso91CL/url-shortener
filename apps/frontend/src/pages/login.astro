@@ -1,0 +1,133 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Iniciar sesión">
+  <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center py-12 px-6">
+    <div class="w-full max-w-md">
+      <!-- Logo -->
+      <div class="text-center mb-8">
+        <a href="/" class="inline-flex items-center gap-2 mb-6">
+          <div class="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center text-white font-bold">
+            L
+          </div>
+        </a>
+        <h1 class="font-serif text-2xl font-semibold mb-2">Bienvenido de nuevo</h1>
+        <p class="text-surface-500">Ingresa tus credenciales para continuar</p>
+      </div>
+
+      <!-- Login form -->
+      <div class="card p-8">
+        <form id="loginForm" class="space-y-5">
+          <div>
+            <label for="email" class="block text-sm font-medium mb-2">Correo electrónico</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              autocomplete="email"
+              class="input-base"
+              placeholder="tu@email.com"
+            />
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label for="password" class="block text-sm font-medium">Contraseña</label>
+              <a href="#" class="text-sm text-brand-600 hover:text-brand-700">¿Olvidaste tu contraseña?</a>
+            </div>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              autocomplete="current-password"
+              class="input-base"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <div class="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="remember"
+              name="remember"
+              class="w-4 h-4 rounded border-surface-300 text-brand-500 focus:ring-brand-500"
+            />
+            <label for="remember" class="text-sm text-surface-600">Mantener sesión abierta</label>
+          </div>
+
+          <div id="errorMessage" class="hidden p-4 bg-error-light text-error-dark rounded-lg text-sm"></div>
+
+          <button type="submit" class="btn btn-primary w-full py-3">
+            <span id="submitText">Iniciar sesión</span>
+            <span id="submitLoader" class="hidden">
+              <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              </svg>
+            </span>
+          </button>
+        </form>
+
+        <div class="mt-6 text-center">
+          <p class="text-surface-500 text-sm">
+            ¿No tienes cuenta? <a href="/register" class="text-brand-600 hover:text-brand-700 font-medium">Créala aquí</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('loginForm') as HTMLFormElement;
+  const errorMessage = document.getElementById('errorMessage') as HTMLDivElement;
+  const submitText = document.getElementById('submitText') as HTMLSpanElement;
+  const submitLoader = document.getElementById('submitLoader') as HTMLSpanElement;
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Hide any previous error
+    errorMessage.classList.add('hidden');
+    
+    // Show loading
+    submitText.classList.add('hidden');
+    submitLoader.classList.remove('hidden');
+    
+    const formData = new FormData(form);
+    const email = formData.get('email');
+    const password = formData.get('password');
+
+    try {
+      const response = await fetch('http://localhost:3000/api/v1/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Error al iniciar sesión');
+      }
+
+      // Store token
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      // Redirect to dashboard
+      window.location.href = '/dashboard';
+    } catch (error) {
+      errorMessage.textContent = error instanceof Error ? error.message : 'Error al iniciar sesión';
+      errorMessage.classList.remove('hidden');
+    } finally {
+      submitText.classList.remove('hidden');
+      submitLoader.classList.add('hidden');
+    }
+  });
+</script>

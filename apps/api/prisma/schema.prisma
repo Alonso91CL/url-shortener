@@ -1,0 +1,71 @@
+// =============================================================================
+// Prisma Schema - URL Shortener Database
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+// User Model
+// -----------------------------------------------------------------------------
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  name         String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  links        Link[]
+
+  @@map("users")
+}
+
+// -----------------------------------------------------------------------------
+// Link Model
+// -----------------------------------------------------------------------------
+model Link {
+  id           String    @id @default(uuid())
+  code         String    @unique
+  originalUrl  String    @map("original_url")
+  userId       String    @map("user_id")
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isActive     Boolean   @default(true) @map("is_active")
+  redirectType Int       @default(302) @map("redirect_type")
+  expiresAt    DateTime? @map("expires_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  clicks       Click[]
+
+  @@index([code])
+  @@index([userId])
+  @@index([userId, createdAt])
+  @@map("links")
+}
+
+// -----------------------------------------------------------------------------
+// Click Model (Analytics)
+// -----------------------------------------------------------------------------
+model Click {
+  id         BigInt   @id @default(autoincrement())
+  linkId     String   @map("link_id")
+  link       Link     @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  clickedAt  DateTime @default(now()) @map("clicked_at")
+  ipHash     String   @map("ip_hash")
+  country    String?
+  city       String?
+  deviceType String?  @map("device_type")
+  os         String?
+  browser    String?
+  referer    String?
+
+  @@index([linkId, clickedAt])
+  @@index([linkId, country])
+  @@index([linkId, deviceType])
+  @@map("clicks")
+}
