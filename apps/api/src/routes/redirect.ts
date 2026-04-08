@@ -17,26 +17,49 @@ router.use(createRedirectRateLimiter());
  * 
  * Redirects to the original URL.
  * This is the performance-critical endpoint that should respond <20ms with cache hit.
+ * 
+ * When Accept: application/json is sent, returns JSON instead of redirecting.
+ * This allows the frontend to handle the redirect.
  */
 router.get('/:code', async (req: Request, res: Response): Promise<void> => {
   const startTime = Date.now();
   const { code } = req.params;
+  const acceptHeader = req.headers.accept;
+  const wantsJson = acceptHeader?.includes('application/json');
+  
+  // Get client info - prioritize custom headers from frontend
+  const clientIP = req.headers['x-client-ip'] as string || 
+                   req.headers['x-forwarded-for'] as string ||
+                   req.socket.remoteAddress;
+  const userAgent = req.headers['x-user-agent'] as string || 
+                    req.headers['user-agent'] as string;
+  const referer = req.headers['x-referer'] as string || 
+                  req.headers.referer as string;
+
+  logger.debug('Redirect request', { 
+    code, 
+    clientIP,
+    userAgent: userAgent?.substring(0, 50),
+    referer,
+    wantsJson 
+  });
 
   try {
     const result = await processRedirect(code, {
-      ip: req.socket.remoteAddress,
-      userAgent: req.headers['user-agent'],
-      referer: req.headers.referer,
+      ip: clientIP,
+      userAgent,
+      referer,
       forwardedFor: req.headers['x-forwarded-for'] as string | string[] | undefined,
       realIP: req.headers['x-real-ip'] as string | undefined,
     });
 
     if (!result) {
-      // Link not found - serve 404 page
-      const baseUrl = process.env.APP_BASE_URL || 'http://localhost:4321';
       res.status(404);
       
-      if (req.headers.accept?.includes('text/html')) {
+      if (wantsJson) {
+        res.json({ error: 'Link not found', code: 'LINK_NOT_FOUND' });
+      } else {
+        const baseUrl = process.env.APP_BASE_URL || 'http://localhost:4321';
         res.send(`
           <!DOCTYPE html>
           <html lang="en">
@@ -45,11 +68,11 @@ router.get('/:code', async (req: Request, res: Response): Promise<void> => {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Link Not Found - URL Shortener</title>
             <style>
-              body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f8fafc; }
+              body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #1a1a1a; color: #e5e5e5; }
               .container { text-align: center; padding: 2rem; }
-              h1 { color: #1e293b; margin-bottom: 0.5rem; }
-              p { color: #64748b; margin-bottom: 1.5rem; }
-              a { color: #3b82f6; text-decoration: none; }
+              h1 { color: #ef4444; margin-bottom: 0.5rem; }
+              p { color: #9ca3af; margin-bottom: 1.5rem; }
+              a { color: #22c55e; text-decoration: none; }
               a:hover { text-decoration: underline; }
             </style>
           </head>
@@ -62,19 +85,18 @@ router.get('/:code', async (req: Request, res: Response): Promise<void> => {
           </body>
           </html>
         `);
-      } else {
-        res.json({ error: 'Link not found', code: 'LINK_NOT_FOUND' });
       }
       return;
     }
 
     if (!result.isActive) {
-      // Link inactive or expired - serve info page
-      const baseUrl = process.env.APP_BASE_URL || 'http://localhost:4321';
       const reason = result.isExpired ? 'expired' : 'deactivated';
-      res.status(410); // Gone
+      res.status(410);
       
-      if (req.headers.accept?.includes('text/html')) {
+      if (wantsJson) {
+        res.json({ error: `Link ${reason}`, code: `LINK_${reason.toUpperCase()}`, reason });
+      } else {
+        const baseUrl = process.env.APP_BASE_URL || 'http://localhost:4321';
         res.send(`
           <!DOCTYPE html>
           <html lang="en">
@@ -83,11 +105,11 @@ router.get('/:code', async (req: Request, res: Response): Promise<void> => {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Link ${reason.charAt(0).toUpperCase() + reason.slice(1)} - URL Shortener</title>
             <style>
-              body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f8fafc; }
+              body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #1a1a1a; color: #e5e5e5; }
               .container { text-align: center; padding: 2rem; }
-              h1 { color: #1e293b; margin-bottom: 0.5rem; }
-              p { color: #64748b; margin-bottom: 1.5rem; }
-              a { color: #3b82f6; text-decoration: none; }
+              h1 { color: #f59e0b; margin-bottom: 0.5rem; }
+              p { color: #9ca3af; margin-bottom: 1.5rem; }
+              a { color: #22c55e; text-decoration: none; }
               a:hover { text-decoration: underline; }
             </style>
           </head>
@@ -100,8 +122,6 @@ router.get('/:code', async (req: Request, res: Response): Promise<void> => {
           </body>
           </html>
         `);
-      } else {
-        res.json({ error: `Link ${reason}`, code: `LINK_${reason.toUpperCase()}` });
       }
       return;
     }
@@ -110,13 +130,24 @@ router.get('/:code', async (req: Request, res: Response): Promise<void> => {
     const duration = Date.now() - startTime;
     logger.debug('Redirect completed', { code, duration, status: result.redirectType });
 
-    // Perform the redirect
+    // If JSON requested, return the URL data
+    if (wantsJson) {
+      res.json({
+        originalUrl: result.originalUrl,
+        redirectType: result.redirectType,
+      });
+      return;
+    }
+
+    // Perform the redirect (HTML fallback)
     res.redirect(result.redirectType, result.originalUrl);
   } catch (error) {
     logger.error('Redirect error', { code, error });
     
     res.status(500);
-    if (req.headers.accept?.includes('text/html')) {
+    if (wantsJson) {
+      res.json({ error: 'Internal server error', code: 'SERVER_ERROR' });
+    } else {
       const baseUrl = process.env.APP_BASE_URL || 'http://localhost:4321';
       res.send(`
         <!DOCTYPE html>
@@ -126,11 +157,11 @@ router.get('/:code', async (req: Request, res: Response): Promise<void> => {
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Error - URL Shortener</title>
           <style>
-            body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f8fafc; }
+            body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #1a1a1a; color: #e5e5e5; }
             .container { text-align: center; padding: 2rem; }
             h1 { color: #ef4444; margin-bottom: 0.5rem; }
-            p { color: #64748b; margin-bottom: 1.5rem; }
-            a { color: #3b82f6; text-decoration: none; }
+            p { color: #9ca3af; margin-bottom: 1.5rem; }
+            a { color: #22c55e; text-decoration: none; }
           </style>
         </head>
         <body>
@@ -142,8 +173,6 @@ router.get('/:code', async (req: Request, res: Response): Promise<void> => {
         </body>
         </html>
       `);
-    } else {
-      res.json({ error: 'Internal server error', code: 'SERVER_ERROR' });
     }
   }
 });

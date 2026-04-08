@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import 'sweetalert2/dist/sweetalert2.css';
 ---
 
 <BaseLayout title="Iniciar sesión">
@@ -56,8 +57,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <label for="remember" class="text-sm text-ink-500">Mantener sesión abierta</label>
           </div>
 
-          <div id="errorMessage" class="hidden p-4 bg-error/10 border border-error/30 text-error rounded-lg text-sm"></div>
-
           <button type="submit" class="btn btn-primary w-full py-3">
             <span id="submitText">Iniciar sesión</span>
             <span id="submitLoader" class="hidden">
@@ -80,15 +79,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 </BaseLayout>
 
 <script>
+  import Swal from 'sweetalert2';
+
   const form = document.getElementById('loginForm') as HTMLFormElement;
-  const errorMessage = document.getElementById('errorMessage') as HTMLDivElement;
   const submitText = document.getElementById('submitText') as HTMLSpanElement;
   const submitLoader = document.getElementById('submitLoader') as HTMLSpanElement;
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
-    errorMessage.classList.add('hidden');
     
     submitText.classList.add('hidden');
     submitLoader.classList.remove('hidden');
@@ -115,10 +113,27 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       localStorage.setItem('token', data.data.token);
       localStorage.setItem('user', JSON.stringify(data.data.user));
 
+      await Swal.fire({
+        icon: 'success',
+        title: '¡Bienvenido!',
+        text: 'Iniciando sesión...',
+        timer: 1500,
+        showConfirmButton: false,
+        background: '#1a1a1a',
+        color: '#e5e5e5',
+        confirmButtonColor: '#22c55e',
+      });
+
       window.location.href = '/dashboard';
     } catch (error) {
-      errorMessage.textContent = error instanceof Error ? error.message : 'Error al iniciar sesión';
-      errorMessage.classList.remove('hidden');
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error instanceof Error ? error.message : 'Error al iniciar sesión',
+        background: '#1a1a1a',
+        color: '#e5e5e5',
+        confirmButtonColor: '#22c55e',
+      });
     } finally {
       submitText.classList.remove('hidden');
       submitLoader.classList.add('hidden');

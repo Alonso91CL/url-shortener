@@ -1,13 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import clsx from 'clsx';
 import CopyButton from './CopyButton';
+import { confirmDelete, notifySuccess, notifyError } from '../utils/notifications';
+import { getShortUrl, getApiUrl } from '../utils/config';
 
 interface Link {
   id: string;
   code: string;
   originalUrl: string;
-  clicks: number;
-  active: boolean;
+  clickCount: number;
+  isActive: boolean;
   createdAt: string;
 }
 
@@ -29,7 +31,7 @@ export default function LinkTable() {
         return;
       }
       
-      const response = await fetch('http://localhost:3000/api/v1/links', {
+      const response = await fetch(getApiUrl('/links'), {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -47,7 +49,9 @@ export default function LinkTable() {
       }
 
       const data = await response.json();
-      setLinks(data);
+      console.log('API Response:', data);
+      console.log('data.data:', data.data);
+      setLinks(Array.isArray(data.data) ? data.data : []);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar los enlaces');
@@ -76,7 +80,12 @@ export default function LinkTable() {
   }, [fetchLinks]);
 
   const handleDelete = async (code: string) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este enlace?')) {
+    const confirmed = await confirmDelete(
+      '¿Eliminar enlace?',
+      'Esta acción no se puede deshacer. El enlace dejará de funcionar.'
+    );
+    
+    if (!confirmed) {
       return;
     }
 
@@ -85,7 +94,7 @@ export default function LinkTable() {
     try {
       const token = localStorage.getItem('token');
       
-      const response = await fetch(`http://localhost:3000/api/v1/links/${code}`, {
+      const response = await fetch(getApiUrl(`/links/${code}`), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -97,8 +106,9 @@ export default function LinkTable() {
       }
 
       setLinks((prev) => prev.filter((link) => link.code !== code));
+      notifySuccess('Enlace eliminado correctamente');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al eliminar el enlace');
+      notifyError(err instanceof Error ? err.message : 'Error al eliminar el enlace');
     } finally {
       setDeletingId(null);
     }
@@ -211,7 +221,7 @@ export default function LinkTable() {
                   <div className="flex items-center gap-3">
                     <div className={clsx(
                       'w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0',
-                      link.active ? 'bg-accent-500/10 border border-accent-500/20 text-accent-400' : 'bg-surface-700 text-ink-600'
+                      link.isActive ? 'bg-accent-500/10 border border-accent-500/20 text-accent-400' : 'bg-surface-700 text-ink-600'
                     )}>
                       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
@@ -226,14 +236,14 @@ export default function LinkTable() {
                         >
                           {link.code}
                         </a>
-                        <CopyButton text={`${window.location.origin}/${link.code}`} />
+                        <CopyButton text={getShortUrl(link.code)} />
                       </div>
                       <div className="sm:hidden mt-1">
                         <span className={clsx(
                           'badge text-2xs',
-                          link.active ? 'badge-success' : 'badge-warning'
+                          link.isActive ? 'badge-success' : 'badge-warning'
                         )}>
-                          {link.active ? 'Activo' : 'Inactivo'}
+                          {link.isActive ? 'Activo' : 'Inactivo'}
                         </span>
                       </div>
                     </div>
@@ -247,7 +257,7 @@ export default function LinkTable() {
                   </div>
                 </td>
                 <td className="p-4 text-right">
-                  <span className="text-sm font-semibold tabular-nums text-ink-100">{link.clicks.toLocaleString()}</span>
+                  <span className="text-sm font-semibold tabular-nums text-ink-100">{link.clickCount.toLocaleString()}</span>
                 </td>
                 <td className="p-4 text-center hidden md:table-cell">
                   <span className="text-sm text-ink-600">{formatDate(link.createdAt)}</span>

@@ -11,11 +11,13 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { getApiUrl } from '../utils/config';
 
 type ChartType = 'timeseries' | 'devices' | 'browsers';
 
 interface Props {
   type: ChartType;
+  code: string;
 }
 
 const COLORS = {
@@ -28,19 +30,25 @@ const COLORS = {
 
 const PIE_COLORS = ['oklch(65% 0.22 270)', 'oklch(65% 0.18 250)', 'oklch(70% 0.18 145)', 'oklch(80% 0.18 85)'];
 
-export default function AnalyticsChart({ type }: Props) {
+export default function AnalyticsChart({ type, code }: Props) {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [days, setDays] = useState(30);
 
-  const code = window.location.pathname.split('/').pop();
-
   const fetchData = useCallback(async () => {
-    if (!code) return;
+    if (!code) {
+      setLoading(false);
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
       let endpoint = '';
 
       switch (type) {
@@ -54,18 +62,27 @@ export default function AnalyticsChart({ type }: Props) {
           endpoint = `${code}/browsers`;
           break;
         default:
+          setLoading(false);
           return;
       }
 
-      const response = await fetch(`http://localhost:3000/api/v1/stats/${endpoint}`, {
+      const response = await fetch(getApiUrl(`/stats/${endpoint}`), {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
 
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+        return;
+      }
+
       if (!response.ok) throw new Error('Error al cargar datos');
 
-      const result = await response.json();
+      const json = await response.json();
+      const result = json.data || [];
       
       switch (type) {
         case 'timeseries':
@@ -76,14 +93,14 @@ export default function AnalyticsChart({ type }: Props) {
           break;
         case 'devices':
           setData(result.map((item: any) => ({
-            name: item.device || 'Otro',
-            value: item.count,
+            name: item.label || 'Otro',
+            value: item.value || 0,
           })));
           break;
         case 'browsers':
           setData(result.map((item: any) => ({
-            name: item.browser || 'Otro',
-            value: item.count,
+            name: item.label || 'Otro',
+            value: item.value || 0,
           })));
           break;
       }

@@ -38,6 +38,9 @@ npm install
 # Copy environment variables
 cp .env.example .env
 
+# Frontend also needs its own .env for PUBLIC_ variables
+cp .env.example apps/frontend/.env
+
 # Start infrastructure (Postgres + Redis)
 npm run docker:up
 
@@ -57,6 +60,7 @@ npm run dev
 - **API**: http://localhost:3000
 - **Swagger Docs**: http://localhost:3000/api/docs
 - **Health Check**: http://localhost:3000/health
+- **Short URL**: http://localhost:4321/r/{code}
 
 ## Project Structure
 
@@ -138,6 +142,7 @@ npm run docker:down      # Stop containers
 
 ## Environment Variables
 
+### Root `.env` (API & Backend)
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `DATABASE_URL` | - | PostgreSQL connection string |
@@ -151,14 +156,29 @@ npm run docker:down      # Stop containers
 | `CORS_ORIGIN` | `http://localhost:4321` | CORS allowed origin |
 | `BULL_CONCURRENCY` | `5` | Worker concurrency |
 
+### Frontend `.env` (apps/frontend/.env)
+Public variables exposed to the client (must start with PUBLIC_):
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PUBLIC_APP_BASE_URL` | `http://localhost:4321` | Frontend base URL |
+| `PUBLIC_API_BASE_URL` | `http://localhost:3000` | API base URL |
+
+**Production example:**
+```env
+PUBLIC_APP_BASE_URL=https://linkly.pivotit.cl
+PUBLIC_API_BASE_URL=https://linkly.pivotit.cl
+```
+
 ## Architecture
 
-### Redirect Flow (Critical Path)
-1. User accesses `/r/:code`
-2. Check Redis cache (`link:{code}`)
-3. On cache miss, query PostgreSQL
-4. Return HTTP 302 with `Location` header
-5. Enqueue click event (fire-and-forget)
+### Redirect Flow (User-facing)
+1. User accesses `/r/:code` on frontend
+2. Frontend calls API internally with client headers (IP, User-Agent, Referer)
+3. API checks Redis cache (`link:{code}`)
+4. On cache miss, query PostgreSQL
+5. API returns JSON with original URL
+6. Frontend performs redirect to destination
+7. Enqueue click event (fire-and-forget)
 
 ### Click Processing Pipeline
 1. BullMQ worker receives click job
@@ -166,10 +186,12 @@ npm run docker:down      # Stop containers
 3. Hash IP with SHA-256 + salt
 4. Lookup geo location (GeoIP)
 5. Persist to PostgreSQL `clicks` table
+6. Invalidate stats cache for real-time updates
 
 ### Caching Strategy
-- Redirects cached in Redis with 1-hour TTL
+- Links cached in Redis with 1-hour TTL
 - Cache key format: `link:{code}`
+- Stats cache invalidated on new clicks (real-time analytics)
 - Automatic invalidation on link update/delete
 
 ## Deployment

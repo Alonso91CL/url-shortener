@@ -7,7 +7,14 @@ export const prerender = false;
 ---
 
 <BaseLayout title="Analytics de enlace">
-  <div class="max-w-7xl mx-auto px-6 py-8">
+  <div id="loading-state" class="min-h-[60vh] flex items-center justify-center">
+    <div class="text-center">
+      <div class="w-12 h-12 border-4 border-accent-500/30 border-t-accent-500 rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-ink-500">Verificando sesión...</p>
+    </div>
+  </div>
+
+  <div id="page-content" class="max-w-7xl mx-auto px-6 py-8 hidden">
     <div class="mb-8">
       <a href="/dashboard" class="inline-flex items-center gap-2 text-sm text-ink-500 hover:text-ink-300 transition-colors mb-4">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -47,7 +54,7 @@ export const prerender = false;
     </div>
 
     <section class="mb-8">
-      <StatsOverview client:load />
+      <StatsOverview client:only="react" code={Astro.params.code} />
     </section>
 
     <div class="flex items-center gap-2 mb-6">
@@ -62,7 +69,7 @@ export const prerender = false;
     <section class="card p-6 mb-8">
       <h2 class="font-semibold mb-4 text-ink-100">Clics en el tiempo</h2>
       <div class="h-72">
-        <AnalyticsChart client:load type="timeseries" />
+        <AnalyticsChart client:only="react" type="timeseries" code={Astro.params.code} />
       </div>
     </section>
 
@@ -70,14 +77,14 @@ export const prerender = false;
       <section class="card p-6">
         <h2 class="font-semibold mb-4 text-ink-100">Dispositivos</h2>
         <div class="h-64">
-          <AnalyticsChart client:load type="devices" />
+          <AnalyticsChart client:only="react" type="devices" code={Astro.params.code} />
         </div>
       </section>
 
       <section class="card p-6">
         <h2 class="font-semibold mb-4 text-ink-100">Navegadores</h2>
         <div class="h-64">
-          <AnalyticsChart client:load type="browsers" />
+          <AnalyticsChart client:only="react" type="browsers" code={Astro.params.code} />
         </div>
       </section>
     </div>
@@ -126,13 +133,17 @@ export const prerender = false;
       </div>
     </div>
   </dialog>
+  </div>
 </BaseLayout>
 
-<script define:vars={{ code: Astro.params.code }}>
-  const API_BASE = 'http://localhost:3000/api/v1';
+<script define:vars={{ code: Astro.params.code, appBaseUrl: import.meta.env.PUBLIC_APP_BASE_URL || 'http://localhost:4321', apiBaseUrl: import.meta.env.PUBLIC_API_BASE_URL || 'http://localhost:3000' }}>
+  const API_BASE = `${apiBaseUrl}/api/v1`;
+  const getShortUrl = (code) => `${appBaseUrl}/r/${code}`;
   
   async function initPage() {
     const token = localStorage.getItem('token');
+    console.log('[Dashboard] Token exists:', !!token);
+    console.log('[Dashboard] API_BASE:', API_BASE);
     if (!token) {
       window.location.href = '/login';
       return;
@@ -145,11 +156,20 @@ export const prerender = false;
     });
 
     if (!response.ok) {
+      console.log('[Dashboard] Auth check failed:', response.status);
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
       return;
+    } else {
+      console.log('[Dashboard] Auth check passed, loading data...');
     }
+
+    // Hide loading state and show content
+    const loadingState = document.getElementById('loading-state');
+    const pageContent = document.getElementById('page-content');
+    if (loadingState) loadingState.classList.add('hidden');
+    if (pageContent) pageContent.classList.remove('hidden');
 
     let currentDays = 30;
     let linkData = null;
@@ -170,7 +190,8 @@ export const prerender = false;
         throw new Error('Error al cargar el enlace');
       }
 
-      linkData = await response.json();
+      const json = await response.json();
+      linkData = json.data;
       updateLinkInfo();
     } catch (error) {
       console.error('Error fetching link:', error);
@@ -180,11 +201,11 @@ export const prerender = false;
   function updateLinkInfo() {
     if (!linkData) return;
     
-    document.getElementById('linkCode').textContent = `${window.location.origin}/${linkData.code}`;
+    document.getElementById('linkCode').textContent = getShortUrl(linkData.code);
     document.getElementById('originalUrl').textContent = linkData.originalUrl;
     
     const statusBadge = document.getElementById('linkStatus');
-    if (linkData.active) {
+    if (linkData.isActive) {
       statusBadge.className = 'badge badge-success';
       statusBadge.innerHTML = '<span class="w-1.5 h-1.5 bg-current rounded-full"></span> Activo';
     } else {
@@ -203,8 +224,8 @@ export const prerender = false;
 
       if (!response.ok) throw new Error('Error al cargar países');
 
-      const data = await response.json();
-      renderCountries(data);
+      const json = await response.json();
+      renderCountries(json.data || []);
     } catch (error) {
       console.error('Error fetching countries:', error);
     }
@@ -221,13 +242,13 @@ export const prerender = false;
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
           <span class="w-6 text-center text-sm text-ink-600">${index + 1}</span>
-          <span class="font-medium text-ink-300">${item.country || 'Desconocido'}</span>
+          <span class="font-medium text-ink-300">${item.label || 'Desconocido'}</span>
         </div>
         <div class="flex items-center gap-3">
           <div class="w-24 h-2 bg-surface-700 rounded-full overflow-hidden">
             <div class="h-full bg-gradient-to-r from-accent-500 to-accent-400 rounded-full" style="width: ${item.percentage}%"></div>
           </div>
-          <span class="text-sm text-ink-500 tabular-nums w-12 text-right">${item.count}</span>
+          <span class="text-sm text-ink-500 tabular-nums w-12 text-right">${item.value}</span>
         </div>
       </div>
     `).join('');
@@ -243,8 +264,8 @@ export const prerender = false;
 
       if (!response.ok) throw new Error('Error al cargar referrers');
 
-      const data = await response.json();
-      renderReferrers(data);
+      const json = await response.json();
+      renderReferrers(json.data || []);
     } catch (error) {
       console.error('Error fetching referrers:', error);
     }
@@ -261,13 +282,13 @@ export const prerender = false;
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
           <span class="w-6 text-center text-sm text-ink-600">${index + 1}</span>
-          <span class="font-medium text-ink-300 truncate max-w-[150px]">${item.referrer || 'Directo'}</span>
+          <span class="font-medium text-ink-300 truncate max-w-[150px]">${item.referer || 'Directo'}</span>
         </div>
         <div class="flex items-center gap-3">
           <div class="w-24 h-2 bg-surface-700 rounded-full overflow-hidden">
-            <div class="h-full bg-info rounded-full" style="width: ${item.percentage}%"></div>
+            <div class="h-full bg-info rounded-full" style="width: ${item.percentage || 0}%"></div>
           </div>
-          <span class="text-sm text-ink-500 tabular-nums w-12 text-right">${item.count}</span>
+          <span class="text-sm text-ink-500 tabular-nums w-12 text-right">${item.clicks || 0}</span>
         </div>
       </div>
     `).join('');
@@ -287,7 +308,7 @@ export const prerender = false;
 
   document.getElementById('copyBtn').addEventListener('click', async () => {
     if (!linkData) return;
-    const shortUrl = `${window.location.origin}/${linkData.code}`;
+    const shortUrl = getShortUrl(linkData.code);
     
     try {
       await navigator.clipboard.writeText(shortUrl);

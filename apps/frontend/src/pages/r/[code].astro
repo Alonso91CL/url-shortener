@@ -1,0 +1,48 @@
+---
+export const prerender = false;
+
+const { code } = Astro.params;
+
+if (!code) {
+  return Astro.redirect('/');
+}
+
+const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || 'http://localhost:3000';
+
+// Extract client info from request headers
+const clientIP = Astro.request.headers.get('x-forwarded-for') || 
+                 Astro.request.headers.get('x-real-ip') ||
+                 Astro.clientAddress ||
+                 'unknown';
+const userAgent = Astro.request.headers.get('user-agent') || '';
+const referer = Astro.request.headers.get('referer') || '';
+
+try {
+  // Pass client headers to API for proper analytics
+  const response = await fetch(`${API_BASE_URL}/r/${code}`, {
+    headers: {
+      'Accept': 'application/json',
+      'X-Client-IP': clientIP,
+      'X-User-Agent': userAgent,
+      'X-Referer': referer,
+      'X-Forwarded-For': clientIP,
+    },
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    if (data.originalUrl) {
+      return Astro.redirect(data.originalUrl, 302);
+    }
+  }
+
+  if (response.status === 410) {
+    return Astro.redirect(`/?error=expired&code=${code}`, 302);
+  }
+
+  return Astro.redirect(`/?error=notfound&code=${code}`, 302);
+} catch (error) {
+  console.error('[r/code] Redirect error:', error);
+  return Astro.redirect('/?error=server', 302);
+}
+---

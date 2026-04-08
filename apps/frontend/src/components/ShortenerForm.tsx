@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import clsx from 'clsx';
 import CopyButton from './CopyButton';
+import { getShortUrl, getApiUrl } from '../utils/config';
 
 interface Props {
   compact?: boolean;
@@ -49,21 +50,21 @@ export default function ShortenerForm({ compact = false }: Props) {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch('http://localhost:3000/api/v1/links', {
+      const response = await fetch(getApiUrl('/links'), {
         method: 'POST',
         headers,
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ originalUrl: url }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Error al crear el enlace');
+        throw new Error(data.error || data.message || 'Error al crear el enlace');
       }
 
       setResult({
-        code: data.code,
-        shortUrl: `${window.location.origin}/${data.code}`,
+        code: data.data.code,
+        shortUrl: getShortUrl(data.data.code),
       });
 
       window.dispatchEvent(new CustomEvent('linkCreated', { detail: data }));

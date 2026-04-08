@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import 'sweetalert2/dist/sweetalert2.css';
 ---
 
 <BaseLayout title="Crear cuenta">
@@ -71,9 +72,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             />
           </div>
 
-          <div id="errorMessage" class="hidden p-4 bg-error/10 border border-error/30 text-error rounded-lg text-sm"></div>
-          <div id="successMessage" class="hidden p-4 bg-success/10 border border-success/30 text-success rounded-lg text-sm"></div>
-
           <button type="submit" class="btn btn-primary w-full py-3">
             <span id="submitText">Crear cuenta</span>
             <span id="submitLoader" class="hidden">
@@ -100,17 +98,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 </BaseLayout>
 
 <script>
+  import Swal from 'sweetalert2';
+
   const form = document.getElementById('registerForm') as HTMLFormElement;
-  const errorMessage = document.getElementById('errorMessage') as HTMLDivElement;
-  const successMessage = document.getElementById('successMessage') as HTMLDivElement;
   const submitText = document.getElementById('submitText') as HTMLSpanElement;
   const submitLoader = document.getElementById('submitLoader') as HTMLSpanElement;
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
-    errorMessage.classList.add('hidden');
-    successMessage.classList.add('hidden');
     
     submitText.classList.add('hidden');
     submitLoader.classList.remove('hidden');
@@ -122,8 +117,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     const confirmPassword = formData.get('confirmPassword');
 
     if (password !== confirmPassword) {
-      errorMessage.textContent = 'Las contraseñas no coinciden';
-      errorMessage.classList.remove('hidden');
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Las contraseñas no coinciden',
+        background: '#1a1a1a',
+        color: '#e5e5e5',
+        confirmButtonColor: '#22c55e',
+      });
       submitText.classList.remove('hidden');
       submitLoader.classList.add('hidden');
       return;
@@ -144,18 +145,30 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         throw new Error(data.error || data.message || 'Error al crear la cuenta');
       }
 
-      successMessage.textContent = '¡Cuenta creada! Redirigiendo...';
-      successMessage.classList.remove('hidden');
-
       localStorage.setItem('token', data.data.token);
       localStorage.setItem('user', JSON.stringify(data.data.user));
 
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 1500);
+      await Swal.fire({
+        icon: 'success',
+        title: '¡Cuenta creada!',
+        text: 'Redirigiendo al dashboard...',
+        timer: 1500,
+        showConfirmButton: false,
+        background: '#1a1a1a',
+        color: '#e5e5e5',
+        confirmButtonColor: '#22c55e',
+      });
+
+      window.location.href = '/dashboard';
     } catch (error) {
-      errorMessage.textContent = error instanceof Error ? error.message : 'Error al crear la cuenta';
-      errorMessage.classList.remove('hidden');
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error instanceof Error ? error.message : 'Error al crear la cuenta',
+        background: '#1a1a1a',
+        color: '#e5e5e5',
+        confirmButtonColor: '#22c55e',
+      });
     } finally {
       submitText.classList.remove('hidden');
       submitLoader.classList.add('hidden');
