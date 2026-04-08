@@ -7,10 +7,16 @@ export const prerender = false;
 ---
 
 <BaseLayout title="Analytics de enlace">
-  <div class="max-w-6xl mx-auto px-6 py-8">
-    <!-- Back button and header -->
+  <div id="loading-state" class="min-h-[60vh] flex items-center justify-center">
+    <div class="text-center">
+      <div class="w-12 h-12 border-4 border-accent-500/30 border-t-accent-500 rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-ink-500">Verificando sesión...</p>
+    </div>
+  </div>
+
+  <div id="page-content" class="max-w-7xl mx-auto px-6 py-8 hidden">
     <div class="mb-8">
-      <a href="/dashboard" class="inline-flex items-center gap-2 text-sm text-surface-500 hover:text-surface-900 transition-colors mb-4">
+      <a href="/dashboard" class="inline-flex items-center gap-2 text-sm text-ink-500 hover:text-ink-300 transition-colors mb-4">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
@@ -20,13 +26,13 @@ export const prerender = false;
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div class="flex items-center gap-3 mb-2">
-            <h1 class="font-serif text-2xl font-semibold" id="linkCode">Cargando...</h1>
+            <h1 class="font-sans text-2xl font-semibold text-ink-100" id="linkCode">Cargando...</h1>
             <span id="linkStatus" class="badge badge-success">
               <span class="w-1.5 h-1.5 bg-current rounded-full"></span>
               Activo
             </span>
           </div>
-          <p class="text-surface-500 text-sm font-mono" id="originalUrl">Cargando URL original...</p>
+          <p class="text-ink-500 text-sm font-mono" id="originalUrl">Cargando URL original...</p>
         </div>
         <div class="flex items-center gap-2">
           <button id="copyBtn" class="btn btn-secondary text-sm">
@@ -47,53 +53,45 @@ export const prerender = false;
       </div>
     </div>
 
-    <!-- Stats overview -->
     <section class="mb-8">
-      <StatsOverview client:load />
+      <StatsOverview client:only="react" code={Astro.params.code} />
     </section>
 
-    <!-- Time period selector -->
     <div class="flex items-center gap-2 mb-6">
-      <span class="text-sm text-surface-500">Periodo:</span>
-      <div class="flex items-center bg-surface-100 rounded-lg p-1" id="periodSelector">
+      <span class="text-sm text-ink-500">Periodo:</span>
+      <div class="flex items-center bg-surface-800 rounded-lg p-1 border border-white/5" id="periodSelector">
         <button class="period-btn px-4 py-1.5 text-sm rounded-md transition-colors" data-days="7">7 días</button>
         <button class="period-btn px-4 py-1.5 text-sm rounded-md transition-colors active" data-days="30">30 días</button>
         <button class="period-btn px-4 py-1.5 text-sm rounded-md transition-colors" data-days="90">90 días</button>
       </div>
     </div>
 
-    <!-- Main chart -->
     <section class="card p-6 mb-8">
-      <h2 class="font-semibold mb-4">Clics en el tiempo</h2>
+      <h2 class="font-semibold mb-4 text-ink-100">Clics en el tiempo</h2>
       <div class="h-72">
-        <AnalyticsChart client:load type="timeseries" />
+        <AnalyticsChart client:only="react" type="timeseries" code={Astro.params.code} />
       </div>
     </section>
 
-    <!-- Secondary charts grid -->
     <div class="grid lg:grid-cols-2 gap-6 mb-8">
-      <!-- Devices chart -->
       <section class="card p-6">
-        <h2 class="font-semibold mb-4">Dispositivos</h2>
+        <h2 class="font-semibold mb-4 text-ink-100">Dispositivos</h2>
         <div class="h-64">
-          <AnalyticsChart client:load type="devices" />
+          <AnalyticsChart client:only="react" type="devices" code={Astro.params.code} />
         </div>
       </section>
 
-      <!-- Browsers chart -->
       <section class="card p-6">
-        <h2 class="font-semibold mb-4">Navegadores</h2>
+        <h2 class="font-semibold mb-4 text-ink-100">Navegadores</h2>
         <div class="h-64">
-          <AnalyticsChart client:load type="browsers" />
+          <AnalyticsChart client:only="react" type="browsers" code={Astro.params.code} />
         </div>
       </section>
     </div>
 
-    <!-- Countries and Referrers -->
     <div class="grid lg:grid-cols-2 gap-6">
-      <!-- Countries -->
       <section class="card p-6">
-        <h2 class="font-semibold mb-4">Países</h2>
+        <h2 class="font-semibold mb-4 text-ink-100">Países</h2>
         <div id="countriesList" class="space-y-3">
           <div class="skeleton h-10 w-full"></div>
           <div class="skeleton h-10 w-full"></div>
@@ -103,9 +101,8 @@ export const prerender = false;
         </div>
       </section>
 
-      <!-- Referrers -->
       <section class="card p-6">
-        <h2 class="font-semibold mb-4">Fuentes de tráfico</h2>
+        <h2 class="font-semibold mb-4 text-ink-100">Fuentes de tráfico</h2>
         <div id="referrersList" class="space-y-3">
           <div class="skeleton h-10 w-full"></div>
           <div class="skeleton h-10 w-full"></div>
@@ -117,18 +114,17 @@ export const prerender = false;
     </div>
   </div>
 
-  <!-- Delete confirmation modal -->
-  <dialog id="deleteModal" class="p-0 rounded-2xl shadow-lift backdrop:bg-black/30 backdrop:backdrop-blur-sm max-w-md w-[90vw]">
+  <dialog id="deleteModal" class="p-0 rounded-2xl shadow-lift backdrop:bg-black/50 backdrop:backdrop-blur-sm max-w-md w-[90vw] bg-surface-800 border border-white/10">
     <div class="p-6">
-      <div class="flex items-center justify-center w-12 h-12 bg-error-light rounded-full mb-4 mx-auto">
+      <div class="flex items-center justify-center w-12 h-12 bg-error/10 border border-error/30 rounded-full mb-4 mx-auto">
         <svg class="w-6 h-6 text-error" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
           <line x1="12" y1="9" x2="12" y2="13"/>
           <line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
       </div>
-      <h3 class="font-serif text-xl font-semibold text-center mb-2">Eliminar enlace</h3>
-      <p class="text-surface-500 text-sm text-center mb-6">
+      <h3 class="font-sans text-xl font-semibold text-center mb-2 text-ink-100">Eliminar enlace</h3>
+      <p class="text-ink-500 text-sm text-center mb-6">
         ¿Estás seguro de que quieres eliminar este enlace? Esta acción no se puede deshacer y se perderán todas las estadísticas.
       </p>
       <div class="flex gap-3">
@@ -137,21 +133,47 @@ export const prerender = false;
       </div>
     </div>
   </dialog>
+  </div>
 </BaseLayout>
 
-<script define:vars={{ code: Astro.params.code }}>
-  const API_BASE = 'http://localhost:3000/api/v1';
+<script define:vars={{ code: Astro.params.code, appBaseUrl: import.meta.env.PUBLIC_APP_BASE_URL || 'http://localhost:4321', apiBaseUrl: import.meta.env.PUBLIC_API_BASE_URL || 'http://localhost:3000' }}>
+  const API_BASE = `${apiBaseUrl}/api/v1`;
+  const getShortUrl = (code) => `${appBaseUrl}/r/${code}`;
   
-  // Check authentication
-  const token = localStorage.getItem('token');
-  if (!token) {
-    window.location.href = '/login';
-  }
+  async function initPage() {
+    const token = localStorage.getItem('token');
+    console.log('[Dashboard] Token exists:', !!token);
+    console.log('[Dashboard] API_BASE:', API_BASE);
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
 
-  let currentDays = 30;
-  let linkData = null;
+    const response = await fetch(`${API_BASE}/auth/me`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
 
-  // Fetch link data
+    if (!response.ok) {
+      console.log('[Dashboard] Auth check failed:', response.status);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+      return;
+    } else {
+      console.log('[Dashboard] Auth check passed, loading data...');
+    }
+
+    // Hide loading state and show content
+    const loadingState = document.getElementById('loading-state');
+    const pageContent = document.getElementById('page-content');
+    if (loadingState) loadingState.classList.add('hidden');
+    if (pageContent) pageContent.classList.remove('hidden');
+
+    let currentDays = 30;
+    let linkData = null;
+
   async function fetchLinkData() {
     try {
       const response = await fetch(`${API_BASE}/links/${code}`, {
@@ -168,7 +190,8 @@ export const prerender = false;
         throw new Error('Error al cargar el enlace');
       }
 
-      linkData = await response.json();
+      const json = await response.json();
+      linkData = json.data;
       updateLinkInfo();
     } catch (error) {
       console.error('Error fetching link:', error);
@@ -178,12 +201,11 @@ export const prerender = false;
   function updateLinkInfo() {
     if (!linkData) return;
     
-    document.getElementById('linkCode').textContent = `${window.location.origin}/${linkData.code}`;
+    document.getElementById('linkCode').textContent = getShortUrl(linkData.code);
     document.getElementById('originalUrl').textContent = linkData.originalUrl;
     
-    // Update status badge
     const statusBadge = document.getElementById('linkStatus');
-    if (linkData.active) {
+    if (linkData.isActive) {
       statusBadge.className = 'badge badge-success';
       statusBadge.innerHTML = '<span class="w-1.5 h-1.5 bg-current rounded-full"></span> Activo';
     } else {
@@ -192,7 +214,6 @@ export const prerender = false;
     }
   }
 
-  // Fetch countries data
   async function fetchCountries() {
     try {
       const response = await fetch(`${API_BASE}/stats/${code}/countries`, {
@@ -203,8 +224,8 @@ export const prerender = false;
 
       if (!response.ok) throw new Error('Error al cargar países');
 
-      const data = await response.json();
-      renderCountries(data);
+      const json = await response.json();
+      renderCountries(json.data || []);
     } catch (error) {
       console.error('Error fetching countries:', error);
     }
@@ -213,27 +234,26 @@ export const prerender = false;
   function renderCountries(countries) {
     const container = document.getElementById('countriesList');
     if (!countries || countries.length === 0) {
-      container.innerHTML = '<p class="text-surface-500 text-sm text-center py-8">No hay datos de geolocalización</p>';
+      container.innerHTML = '<p class="text-ink-500 text-sm text-center py-8">No hay datos de geolocalización</p>';
       return;
     }
 
     container.innerHTML = countries.slice(0, 5).map((item, index) => `
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <span class="w-6 text-center text-sm text-surface-400">${index + 1}</span>
-          <span class="font-medium">${item.country || 'Desconocido'}</span>
+          <span class="w-6 text-center text-sm text-ink-600">${index + 1}</span>
+          <span class="font-medium text-ink-300">${item.label || 'Desconocido'}</span>
         </div>
         <div class="flex items-center gap-3">
-          <div class="w-24 h-2 bg-surface-100 rounded-full overflow-hidden">
-            <div class="h-full bg-brand-400 rounded-full" style="width: ${item.percentage}%"></div>
+          <div class="w-24 h-2 bg-surface-700 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-accent-500 to-accent-400 rounded-full" style="width: ${item.percentage}%"></div>
           </div>
-          <span class="text-sm text-surface-500 tabular-nums w-12 text-right">${item.count}</span>
+          <span class="text-sm text-ink-500 tabular-nums w-12 text-right">${item.value}</span>
         </div>
       </div>
     `).join('');
   }
 
-  // Fetch referrers data
   async function fetchReferrers() {
     try {
       const response = await fetch(`${API_BASE}/stats/${code}/referrers`, {
@@ -244,8 +264,8 @@ export const prerender = false;
 
       if (!response.ok) throw new Error('Error al cargar referrers');
 
-      const data = await response.json();
-      renderReferrers(data);
+      const json = await response.json();
+      renderReferrers(json.data || []);
     } catch (error) {
       console.error('Error fetching referrers:', error);
     }
@@ -254,45 +274,41 @@ export const prerender = false;
   function renderReferrers(referrers) {
     const container = document.getElementById('referrersList');
     if (!referrers || referrers.length === 0) {
-      container.innerHTML = '<p class="text-surface-500 text-sm text-center py-8">No hay datos de referrers</p>';
+      container.innerHTML = '<p class="text-ink-500 text-sm text-center py-8">No hay datos de referrers</p>';
       return;
     }
 
     container.innerHTML = referrers.slice(0, 5).map((item, index) => `
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <span class="w-6 text-center text-sm text-surface-400">${index + 1}</span>
-          <span class="font-medium truncate max-w-[150px]">${item.referrer || 'Directo'}</span>
+          <span class="w-6 text-center text-sm text-ink-600">${index + 1}</span>
+          <span class="font-medium text-ink-300 truncate max-w-[150px]">${item.referer || 'Directo'}</span>
         </div>
         <div class="flex items-center gap-3">
-          <div class="w-24 h-2 bg-surface-100 rounded-full overflow-hidden">
-            <div class="h-full bg-info rounded-full" style="width: ${item.percentage}%"></div>
+          <div class="w-24 h-2 bg-surface-700 rounded-full overflow-hidden">
+            <div class="h-full bg-info rounded-full" style="width: ${item.percentage || 0}%"></div>
           </div>
-          <span class="text-sm text-surface-500 tabular-nums w-12 text-right">${item.count}</span>
+          <span class="text-sm text-ink-500 tabular-nums w-12 text-right">${item.clicks || 0}</span>
         </div>
       </div>
     `).join('');
   }
 
-  // Period selector
   document.querySelectorAll('.period-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active', 'bg-white', 'shadow-sm'));
-      btn.classList.add('active', 'bg-white', 'shadow-sm');
+      document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active', 'bg-accent-500', 'text-white'));
+      btn.classList.add('active', 'bg-accent-500', 'text-white');
       currentDays = parseInt(btn.dataset.days);
       
-      // Trigger chart refresh via custom event
       window.dispatchEvent(new CustomEvent('periodChange', { detail: { days: currentDays } }));
     });
   });
 
-  // Initialize period buttons style
-  document.querySelector('.period-btn.active').classList.add('bg-white', 'shadow-sm');
+  document.querySelector('.period-btn.active').classList.add('bg-accent-500', 'text-white');
 
-  // Copy button
   document.getElementById('copyBtn').addEventListener('click', async () => {
     if (!linkData) return;
-    const shortUrl = `${window.location.origin}/${linkData.code}`;
+    const shortUrl = getShortUrl(linkData.code);
     
     try {
       await navigator.clipboard.writeText(shortUrl);
@@ -306,7 +322,6 @@ export const prerender = false;
     }
   });
 
-  // Delete modal
   const modal = document.getElementById('deleteModal');
   document.getElementById('deleteBtn').addEventListener('click', () => {
     modal.showModal();
@@ -332,24 +347,25 @@ export const prerender = false;
     }
   });
 
-  // Close modal on backdrop click
   modal.addEventListener('click', (e) => {
     if (e.target === modal) {
       modal.close();
     }
   });
 
-  // Initialize
   fetchLinkData();
   fetchCountries();
   fetchReferrers();
+  }
+
+  initPage();
 </script>
 
 <style>
   .period-btn:not(.active) {
-    color: oklch(55% 0.025 60);
+    color: oklch(65% 0.02 250);
   }
   .period-btn.active {
-    color: oklch(25% 0.02 60);
+    color: oklch(100% 0 0);
   }
 </style>

@@ -5,6 +5,25 @@
 import { prisma } from '../db/prisma.js';
 import { ClickJobData } from '../lib/queue.js';
 import { logger } from '../utils/logger.js';
+import { getRedis } from '../lib/cache.js';
+import { CACHE_KEYS } from '../lib/cache.js';
+
+/**
+ * Invalidate stats cache for a link
+ */
+async function invalidateStatsCache(linkCode: string): Promise<void> {
+  try {
+    const redis = getRedis();
+    const pattern = `stats:${linkCode}*`;
+    const keys = await redis.keys(pattern);
+    if (keys.length > 0) {
+      await redis.del(...keys);
+      logger.debug('Stats cache invalidated', { linkCode, keys });
+    }
+  } catch (error) {
+    logger.error('Failed to invalidate stats cache', { linkCode, error });
+  }
+}
 
 /**
  * Process a click event and persist to database
@@ -12,6 +31,17 @@ import { logger } from '../utils/logger.js';
  */
 export async function processClick(data: ClickJobData): Promise<void> {
   const startTime = Date.now();
+
+  logger.debug('Processing click', {
+    linkId: data.linkId,
+    linkCode: data.linkCode,
+    country: data.country,
+    city: data.city,
+    deviceType: data.deviceType,
+    os: data.os,
+    browser: data.browser,
+    referer: data.referer,
+  });
 
   try {
     await prisma.click.create({
@@ -27,6 +57,9 @@ export async function processClick(data: ClickJobData): Promise<void> {
         referer: data.referer || null,
       },
     });
+
+    // Invalidate stats cache
+    await invalidateStatsCache(data.linkCode);
 
     const duration = Date.now() - startTime;
     logger.debug('Click processed', {
@@ -65,6 +98,12 @@ export async function processClickBatch(datas: ClickJobData[]): Promise<number> 
         referer: data.referer || null,
       })),
     });
+
+    // Invalidate stats cache for all link codes in batch
+    const linkCodes = [...new Set(datas.map(d => d.linkCode))];
+    for (const code of linkCodes) {
+      await invalidateStatsCache(code);
+    }
 
     logger.debug('Batch clicks processed', {
       count: result.count,

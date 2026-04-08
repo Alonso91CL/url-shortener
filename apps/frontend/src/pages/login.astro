@@ -1,26 +1,25 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import 'sweetalert2/dist/sweetalert2.css';
 ---
 
 <BaseLayout title="Iniciar sesión">
   <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center py-12 px-6">
     <div class="w-full max-w-md">
-      <!-- Logo -->
       <div class="text-center mb-8">
         <a href="/" class="inline-flex items-center gap-2 mb-6">
-          <div class="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center text-white font-bold">
+          <div class="w-10 h-10 bg-gradient-to-br from-accent-400 to-accent-600 rounded-xl flex items-center justify-center text-white font-bold shadow-glow-sm">
             L
           </div>
         </a>
-        <h1 class="font-serif text-2xl font-semibold mb-2">Bienvenido de nuevo</h1>
-        <p class="text-surface-500">Ingresa tus credenciales para continuar</p>
+        <h1 class="font-sans text-2xl font-semibold mb-2 text-ink-100">Bienvenido de nuevo</h1>
+        <p class="text-ink-500">Ingresa tus credenciales para continuar</p>
       </div>
 
-      <!-- Login form -->
       <div class="card p-8">
         <form id="loginForm" class="space-y-5">
           <div>
-            <label for="email" class="block text-sm font-medium mb-2">Correo electrónico</label>
+            <label for="email" class="block text-sm font-medium mb-2 text-ink-300">Correo electrónico</label>
             <input
               type="email"
               id="email"
@@ -34,8 +33,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
           <div>
             <div class="flex items-center justify-between mb-2">
-              <label for="password" class="block text-sm font-medium">Contraseña</label>
-              <a href="#" class="text-sm text-brand-600 hover:text-brand-700">¿Olvidaste tu contraseña?</a>
+              <label for="password" class="block text-sm font-medium text-ink-300">Contraseña</label>
+              <a href="#" class="text-sm text-accent-400 hover:text-accent-300">¿Olvidaste tu contraseña?</a>
             </div>
             <input
               type="password"
@@ -53,12 +52,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               type="checkbox"
               id="remember"
               name="remember"
-              class="w-4 h-4 rounded border-surface-300 text-brand-500 focus:ring-brand-500"
+              class="w-4 h-4 rounded border-ink-600 text-accent-500 focus:ring-accent-500 bg-surface-800"
             />
-            <label for="remember" class="text-sm text-surface-600">Mantener sesión abierta</label>
+            <label for="remember" class="text-sm text-ink-500">Mantener sesión abierta</label>
           </div>
-
-          <div id="errorMessage" class="hidden p-4 bg-error-light text-error-dark rounded-lg text-sm"></div>
 
           <button type="submit" class="btn btn-primary w-full py-3">
             <span id="submitText">Iniciar sesión</span>
@@ -72,8 +69,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </form>
 
         <div class="mt-6 text-center">
-          <p class="text-surface-500 text-sm">
-            ¿No tienes cuenta? <a href="/register" class="text-brand-600 hover:text-brand-700 font-medium">Créala aquí</a>
+          <p class="text-ink-500 text-sm">
+            ¿No tienes cuenta? <a href="/register" class="text-accent-400 hover:text-accent-300 font-medium">Créala aquí</a>
           </p>
         </div>
       </div>
@@ -82,18 +79,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 </BaseLayout>
 
 <script>
+  import Swal from 'sweetalert2';
+
   const form = document.getElementById('loginForm') as HTMLFormElement;
-  const errorMessage = document.getElementById('errorMessage') as HTMLDivElement;
   const submitText = document.getElementById('submitText') as HTMLSpanElement;
   const submitLoader = document.getElementById('submitLoader') as HTMLSpanElement;
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    // Hide any previous error
-    errorMessage.classList.add('hidden');
-    
-    // Show loading
     submitText.classList.add('hidden');
     submitLoader.classList.remove('hidden');
     
@@ -113,18 +107,33 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Error al iniciar sesión');
+        throw new Error(data.error || data.message || 'Error al iniciar sesión');
       }
 
-      // Store token
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('token', data.data.token);
+      localStorage.setItem('user', JSON.stringify(data.data.user));
 
-      // Redirect to dashboard
+      await Swal.fire({
+        icon: 'success',
+        title: '¡Bienvenido!',
+        text: 'Iniciando sesión...',
+        timer: 1500,
+        showConfirmButton: false,
+        background: '#1a1a1a',
+        color: '#e5e5e5',
+        confirmButtonColor: '#22c55e',
+      });
+
       window.location.href = '/dashboard';
     } catch (error) {
-      errorMessage.textContent = error instanceof Error ? error.message : 'Error al iniciar sesión';
-      errorMessage.classList.remove('hidden');
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error instanceof Error ? error.message : 'Error al iniciar sesión',
+        background: '#1a1a1a',
+        color: '#e5e5e5',
+        confirmButtonColor: '#22c55e',
+      });
     } finally {
       submitText.classList.remove('hidden');
       submitLoader.classList.add('hidden');

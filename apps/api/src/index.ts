@@ -8,6 +8,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 import 'dotenv/config';
+import swaggerUi from 'swagger-ui-express';
 
 // Import routes
 import authRoutes from './routes/auth.js';
@@ -59,7 +60,7 @@ app.use(cors({
   origin: corsOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   maxAge: 86400, // 24 hours
 }));
 
@@ -146,9 +147,10 @@ app.use('/r', redirectRoutes);
 // API Documentation (Swagger/OpenAPI)
 // =============================================================================
 
+console.log('[Docs] NODE_ENV:', process.env.NODE_ENV);
+
 if (process.env.NODE_ENV !== 'production') {
-  import('swagger-ui-express').then((swaggerUi) => {
-    const swaggerDocument = {
+  const swaggerDocument = {
       openapi: '3.0.0',
       info: {
         title: 'URL Shortener API',
@@ -661,8 +663,7 @@ Register a user and login to get a token.`,
       res.setHeader('Content-Type', 'application/json');
       res.send(swaggerDocument);
     });
-  });
-}
+  }
 
 // =============================================================================
 // Error Handling
@@ -742,7 +743,9 @@ async function startServer() {
     process.on('SIGINT', () => shutdown('SIGINT'));
 
   } catch (error) {
-    console.error('Failed to start server:', error);
+    logger.error('Failed to start server', { 
+      error: error instanceof Error ? { message: error.message, name: error.name, stack: error.stack } : String(error)
+    });
     process.exit(1);
   }
 }

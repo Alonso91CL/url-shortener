@@ -1,26 +1,25 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import 'sweetalert2/dist/sweetalert2.css';
 ---
 
 <BaseLayout title="Crear cuenta">
   <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center py-12 px-6">
     <div class="w-full max-w-md">
-      <!-- Logo -->
       <div class="text-center mb-8">
         <a href="/" class="inline-flex items-center gap-2 mb-6">
-          <div class="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center text-white font-bold">
+          <div class="w-10 h-10 bg-gradient-to-br from-accent-400 to-accent-600 rounded-xl flex items-center justify-center text-white font-bold shadow-glow-sm">
             L
           </div>
         </a>
-        <h1 class="font-serif text-2xl font-semibold mb-2">Crea tu cuenta</h1>
-        <p class="text-surface-500">Empieza a acortar enlaces con analytics</p>
+        <h1 class="font-sans text-2xl font-semibold mb-2 text-ink-100">Crea tu cuenta</h1>
+        <p class="text-ink-500">Empieza a acortar enlaces con analytics</p>
       </div>
 
-      <!-- Register form -->
       <div class="card p-8">
         <form id="registerForm" class="space-y-5">
           <div>
-            <label for="name" class="block text-sm font-medium mb-2">Nombre</label>
+            <label for="name" class="block text-sm font-medium mb-2 text-ink-300">Nombre</label>
             <input
               type="text"
               id="name"
@@ -33,7 +32,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
 
           <div>
-            <label for="email" class="block text-sm font-medium mb-2">Correo electrónico</label>
+            <label for="email" class="block text-sm font-medium mb-2 text-ink-300">Correo electrónico</label>
             <input
               type="email"
               id="email"
@@ -46,7 +45,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
 
           <div>
-            <label for="password" class="block text-sm font-medium mb-2">Contraseña</label>
+            <label for="password" class="block text-sm font-medium mb-2 text-ink-300">Contraseña</label>
             <input
               type="password"
               id="password"
@@ -57,11 +56,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               class="input-base"
               placeholder="Mínimo 8 caracteres"
             />
-            <p class="mt-1.5 text-2xs text-surface-500">Usa mayúsculas, minúsculas, números y símbolos</p>
+            <p class="mt-1.5 text-2xs text-ink-600">Usa mayúsculas, minúsculas, números y símbolos</p>
           </div>
 
           <div>
-            <label for="confirmPassword" class="block text-sm font-medium mb-2">Confirmar contraseña</label>
+            <label for="confirmPassword" class="block text-sm font-medium mb-2 text-ink-300">Confirmar contraseña</label>
             <input
               type="password"
               id="confirmPassword"
@@ -72,9 +71,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               placeholder="Repite tu contraseña"
             />
           </div>
-
-          <div id="errorMessage" class="hidden p-4 bg-error-light text-error-dark rounded-lg text-sm"></div>
-          <div id="successMessage" class="hidden p-4 bg-success-light text-success-dark rounded-lg text-sm"></div>
 
           <button type="submit" class="btn btn-primary w-full py-3">
             <span id="submitText">Crear cuenta</span>
@@ -88,34 +84,29 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </form>
 
         <div class="mt-6 text-center">
-          <p class="text-surface-500 text-sm">
-            ¿Ya tienes cuenta? <a href="/login" class="text-brand-600 hover:text-brand-700 font-medium">Inicia sesión</a>
+          <p class="text-ink-500 text-sm">
+            ¿Ya tienes cuenta? <a href="/login" class="text-accent-400 hover:text-accent-300 font-medium">Inicia sesión</a>
           </p>
         </div>
       </div>
 
-      <p class="mt-6 text-center text-xs text-surface-500">
-        Al crear tu cuenta, aceptas nuestros <a href="#" class="text-surface-600 hover:text-surface-900">Términos de servicio</a> y <a href="#" class="text-surface-600 hover:text-surface-900">Política de privacidad</a>.
+      <p class="mt-6 text-center text-xs text-ink-600">
+        Al crear tu cuenta, aceptas nuestros <a href="#" class="text-ink-400 hover:text-ink-300">Términos de servicio</a> y <a href="#" class="text-ink-400 hover:text-ink-300">Política de privacidad</a>.
       </p>
     </div>
   </div>
 </BaseLayout>
 
 <script>
+  import Swal from 'sweetalert2';
+
   const form = document.getElementById('registerForm') as HTMLFormElement;
-  const errorMessage = document.getElementById('errorMessage') as HTMLDivElement;
-  const successMessage = document.getElementById('successMessage') as HTMLDivElement;
   const submitText = document.getElementById('submitText') as HTMLSpanElement;
   const submitLoader = document.getElementById('submitLoader') as HTMLSpanElement;
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    // Hide any previous messages
-    errorMessage.classList.add('hidden');
-    successMessage.classList.add('hidden');
-    
-    // Show loading
     submitText.classList.add('hidden');
     submitLoader.classList.remove('hidden');
     
@@ -125,10 +116,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     const password = formData.get('password');
     const confirmPassword = formData.get('confirmPassword');
 
-    // Validate passwords match
     if (password !== confirmPassword) {
-      errorMessage.textContent = 'Las contraseñas no coinciden';
-      errorMessage.classList.remove('hidden');
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Las contraseñas no coinciden',
+        background: '#1a1a1a',
+        color: '#e5e5e5',
+        confirmButtonColor: '#22c55e',
+      });
       submitText.classList.remove('hidden');
       submitLoader.classList.add('hidden');
       return;
@@ -146,23 +142,33 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Error al crear la cuenta');
+        throw new Error(data.error || data.message || 'Error al crear la cuenta');
       }
 
-      successMessage.textContent = '¡Cuenta creada! Redirigiendo...';
-      successMessage.classList.remove('hidden');
+      localStorage.setItem('token', data.data.token);
+      localStorage.setItem('user', JSON.stringify(data.data.user));
 
-      // Store token
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      await Swal.fire({
+        icon: 'success',
+        title: '¡Cuenta creada!',
+        text: 'Redirigiendo al dashboard...',
+        timer: 1500,
+        showConfirmButton: false,
+        background: '#1a1a1a',
+        color: '#e5e5e5',
+        confirmButtonColor: '#22c55e',
+      });
 
-      // Redirect to dashboard after a short delay
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 1500);
+      window.location.href = '/dashboard';
     } catch (error) {
-      errorMessage.textContent = error instanceof Error ? error.message : 'Error al crear la cuenta';
-      errorMessage.classList.remove('hidden');
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error instanceof Error ? error.message : 'Error al crear la cuenta',
+        background: '#1a1a1a',
+        color: '#e5e5e5',
+        confirmButtonColor: '#22c55e',
+      });
     } finally {
       submitText.classList.remove('hidden');
       submitLoader.classList.add('hidden');

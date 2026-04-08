@@ -104,6 +104,7 @@ export async function createLink(input: CreateLinkInput): Promise<{
 
   // Cache the new link
   await cacheSet(CACHE_KEYS.link(code), {
+    id: link.id,
     originalUrl: link.originalUrl,
     isActive: link.isActive,
     redirectType: link.redirectType,
@@ -134,6 +135,7 @@ export async function getLinkByCode(code: string): Promise<{
 } | null> {
   // Try cache first
   const cached = await cacheGet<{
+    id: string;
     originalUrl: string;
     isActive: boolean;
     redirectType: number;
@@ -142,7 +144,7 @@ export async function getLinkByCode(code: string): Promise<{
 
   if (cached) {
     return {
-      id: '',
+      id: cached.id,
       code,
       originalUrl: cached.originalUrl,
       isActive: cached.isActive,
@@ -162,6 +164,7 @@ export async function getLinkByCode(code: string): Promise<{
 
   // Cache for future requests
   await cacheSet(CACHE_KEYS.link(code), {
+    id: link.id,
     originalUrl: link.originalUrl,
     isActive: link.isActive,
     redirectType: link.redirectType,

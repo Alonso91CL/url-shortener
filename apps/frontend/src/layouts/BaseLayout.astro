@@ -8,29 +8,30 @@ const { title, description = 'Acorta URLs, comparte enlaces y analiza el tráfic
 ---
 
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title} | Linkly</title>
     
-    <!-- Preconnect to Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
   </head>
-  <body class="bg-surface-50 text-surface-900 antialiased">
-    <header class="fixed top-0 left-0 right-0 z-50 glass border-b border-surface-200/50">
-      <nav class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <a href="/" class="flex items-center gap-2 group">
-          <div class="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center text-white font-bold text-sm transition-transform group-hover:scale-105">
+  <body class="bg-surface-500 text-ink-200 antialiased">
+    <header class="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5">
+      <nav class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-3 group">
+          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-accent-400 to-accent-600 flex items-center justify-center text-white font-bold text-sm transition-transform group-hover:scale-105 group-hover:shadow-glow-sm">
             L
           </div>
-          <span class="font-serif text-xl font-semibold tracking-tight">Linkly</span>
+          <span class="font-sans text-xl font-semibold tracking-tight text-ink-100">Linkly</span>
         </a>
         
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
           <a href="/dashboard" class="btn btn-ghost text-sm hidden sm:inline-flex">
             Dashboard
           </a>
@@ -48,24 +49,24 @@ const { title, description = 'Acorta URLs, comparte enlaces y analiza el tráfic
       <slot />
     </main>
 
-    <footer class="border-t border-surface-200 py-12 mt-24">
-      <div class="max-w-6xl mx-auto px-6">
+    <footer class="border-t border-white/5 py-12 mt-24">
+      <div class="max-w-7xl mx-auto px-6">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div class="flex items-center gap-2">
-            <div class="w-6 h-6 bg-brand-500 rounded-md flex items-center justify-center text-white font-bold text-xs">
+            <div class="w-6 h-6 rounded-md bg-gradient-to-br from-accent-400 to-accent-600 flex items-center justify-center text-white font-bold text-xs">
               L
             </div>
-            <span class="font-serif text-lg font-semibold tracking-tight">Linkly</span>
+            <span class="font-sans text-lg font-semibold tracking-tight text-ink-100">Linkly</span>
           </div>
           
-          <p class="text-sm text-surface-500">
+          <p class="text-sm text-ink-500">
             Acorta, comparte, analiza.
           </p>
           
-          <div class="flex items-center gap-6 text-sm text-surface-500">
-            <a href="#" class="hover:text-surface-900 transition-colors">Privacidad</a>
-            <a href="#" class="hover:text-surface-900 transition-colors">Términos</a>
-            <a href="#" class="hover:text-surface-900 transition-colors">API</a>
+          <div class="flex items-center gap-6 text-sm text-ink-500">
+            <a href="#" class="hover:text-ink-100 transition-colors">Privacidad</a>
+            <a href="#" class="hover:text-ink-100 transition-colors">Términos</a>
+            <a href="#" class="hover:text-ink-100 transition-colors">API</a>
           </div>
         </div>
       </div>

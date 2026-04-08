@@ -1,5 +1,10 @@
 # AGENTS.md - URL Shortener Project
 
+## Git Workflow
+- `master` - Production branch (protected)
+- `develop` - Development branch (default)
+- Create feature branches from `develop`
+
 ## Quick Start
 ```bash
 # Install dependencies
@@ -9,13 +14,36 @@ npm install
 npm run docker:up
 
 # Generate Prisma client (required after schema changes)
-cd apps/api && npx prisma generate
+npx prisma generate --schema=apps/api/prisma/schema.prisma
 
 # Run migrations
-cd apps/api && npx prisma migrate dev
+npx prisma migrate dev --schema=apps/api/prisma/schema.prisma
 
-# Start development
+# Start development (all services)
 npm run dev
+```
+
+## Scripts
+
+### Development
+```bash
+npm run dev              # Start all services
+npm run dev:frontend    # Frontend only (4321)
+npm run dev:api          # API only (3000)
+```
+
+### Build & Test
+```bash
+npm run build           # Build all packages
+npm run test            # Run tests
+npm run lint            # Lint code
+```
+
+### Docker
+```bash
+npm run docker:up       # Start containers
+npm run docker:down    # Stop containers
+npm run docker:build    # Build production containers
 ```
 
 ## Project Structure
@@ -37,8 +65,9 @@ npm run test         # Run tests with coverage
 ### Docker
 ```bash
 npm run docker:up     # Start all services
-npm run docker:down  # Stop all services
+npm run docker:down  # Stop containers
 docker compose logs -f api  # View API logs
+docker compose exec redis redis-cli FLUSHALL  # Clear Redis cache
 ```
 
 ## Database
@@ -48,9 +77,36 @@ docker compose logs -f api  # View API logs
 - Migrations auto-run on Docker container start
 
 ## Environment Variables
+
+### Root `.env` (API & Backend)
 - Copy `.env.example` to `.env` in root
 - Required: `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`
 - CORS_ORIGIN defaults to `http://localhost:4321` in dev
+
+### Frontend `.env` (apps/frontend/.env)
+Public variables exposed to the client (must start with PUBLIC_):
+```env
+PUBLIC_APP_BASE_URL=http://localhost:4321
+PUBLIC_API_BASE_URL=http://localhost:3000
+```
+
+### Production URLs
+```env
+PUBLIC_APP_BASE_URL=https://linkly.pivotit.cl
+PUBLIC_API_BASE_URL=https://linkly.pivotit.cl
+```
+
+## URL Redirect Flow
+1. User accesses short URL: `https://linkly.pivotit.cl/r/abc123`
+2. Frontend handles redirect via `apps/frontend/src/pages/r/[code].astro`
+3. Frontend calls API internally with client headers (IP, User-Agent, Referer)
+4. API processes click, stores analytics, returns original URL
+5. Frontend redirects user to destination
+
+This ensures:
+- Users never connect directly to API
+- Client IP/User-Agent captured for analytics
+- Consistent URL structure under single domain
 
 ## API Routes
 - `/api/v1/auth/*` - Authentication (JWT)
@@ -65,10 +121,15 @@ docker compose logs -f api  # View API logs
 - `/login`, `/register` - Auth pages
 - `/dashboard` - Links management
 - `/dashboard/:code` - Analytics for specific link
+- `/r/:code` - Short URL redirect (handled by frontend)
 
 ## Key Files
 - `apps/api/src/index.ts` - Express entry point + Swagger docs
-- `apps/api/src/routes/redirect.ts` - Performance-critical redirect
+- `apps/api/src/routes/redirect.ts` - Redirect route with client header passthrough
+- `apps/api/src/services/linkService.ts` - Link business logic
+- `apps/api/src/workers/clickProcessor.ts` - Click tracking + cache invalidation
 - `apps/api/src/lib/cache.ts` - Redis caching (TTL: 1 hour)
 - `apps/api/src/lib/queue.ts` - BullMQ click processing
+- `apps/frontend/src/pages/r/[code].astro` - Short URL redirect handler
+- `apps/frontend/src/utils/config.ts` - URL configuration utilities
 - `apps/frontend/src/components/` - React islands (client:load)
