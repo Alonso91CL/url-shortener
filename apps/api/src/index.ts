@@ -8,6 +8,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 import 'dotenv/config';
+import swaggerUi from 'swagger-ui-express';
 
 // Import routes
 import authRoutes from './routes/auth.js';
@@ -146,9 +147,10 @@ app.use('/r', redirectRoutes);
 // API Documentation (Swagger/OpenAPI)
 // =============================================================================
 
+console.log('[Docs] NODE_ENV:', process.env.NODE_ENV);
+
 if (process.env.NODE_ENV !== 'production') {
-  import('swagger-ui-express').then((swaggerUi) => {
-    const swaggerDocument = {
+  const swaggerDocument = {
       openapi: '3.0.0',
       info: {
         title: 'URL Shortener API',
@@ -661,8 +663,7 @@ Register a user and login to get a token.`,
       res.setHeader('Content-Type', 'application/json');
       res.send(swaggerDocument);
     });
-  });
-}
+  }
 
 // =============================================================================
 // Error Handling
